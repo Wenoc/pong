@@ -1,0 +1,23 @@
+{
+  "name": "pong",
+  "description": "An elo ranking system for workplace games",
+  "keywords": ["api", "json", "slack", "elo"],
+  "homepage": "https://github.com/Wenoc/pong",
+  "type": "application",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Simon Cederqvist",
+      "email": "simon.cederqvist@gmail.com"
+    }
+	],
+    "require": {
+	    "php": "^5.3 | ^7.0",
+        "monolog/monolog": "1.0.*"
+    }
+ 	"autoload": {
+    	"psr-4": {
+	  		"pong\\":"src"
+	  	}
+    }
+ }
