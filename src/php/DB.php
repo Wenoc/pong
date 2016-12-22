@@ -27,7 +27,7 @@ class Db
 
     private function sql($query)
     {
-        echo "QDEBUG: $query<br/>";
+//        echo "QDEBUG: $query<br/>";
         $result = pg_query($this->db,$query);
         // echo "RDEBUG: ".print_r($result,true)."<br/>";
         return $result;
@@ -66,7 +66,7 @@ class Db
         return $this->sql_get_single($query);
     }
     public function get_stats(){
-        $sql = "SELECT * from users order by elo desc";
+        $sql = "SELECT name,elo,games from users order by elo desc";
         return $this->sql_result_array($sql);
     }
 
@@ -89,7 +89,7 @@ class Db
         print_r($res);
     }
     public function update_elo($player,$elo){
-        if($player && $elo){
+        if($player && isset($elo)){
             $query = "UPDATE users SET elo=$elo, games = games + 1 WHERE name='".pg_escape_string($player)."'";
             return $this->sql($query);
         }

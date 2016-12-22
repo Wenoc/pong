@@ -7,25 +7,40 @@
 require_once("../php/GenericController.php");
 
 $ctrl = new GenericController();
-
+$errors = array(); 
 // Insert new game.
 if(isset($_POST["newgame"]) &&
 	isset($_POST["winner"]) &&
 	isset($_POST["loser"]))
 {
-	if(isset($_POST["draw"]) && $_POST["draw"] == "draw"){
-		$winner = "draw";
-	} else {
-		$winner = $_POST["winner"];
+	$p1 = (string)$_POST["winner"];
+	$p2  = (string)$_POST["loser"];
+	foreach(array($p1,$p2) as $player){
+		if($ctrl->db->player_exists($player)){
+			$out[] ="Player_exists:".$ctrl->db->player_exists($player);
+			$errors[] = "Player $player does not exist.";
+		}
 	}
-	$ctrl->insert_new_game($_POST["winner"],$_POST["loser"],$winner);
+	if(isset($_POST["draw"]) && $_POST["draw"] == "draw")
+		$winner = "draw";
+	else 
+		$winner = $p1;
+	if(!count($errors)){
+		$out[] = $ctrl->insert_new_game($p1,$p2,$winner);
+	}
 }
 
 // New player.
 else if(isset($_POST["newplayer"]) && sizeof($_POST["player"]))
 {
-	$ctrl->insert_new_player($_POST["player"]);
-} 
+	$player = strtolower((string)$_POST["player"]);
+	if($ctrl->db->player_exists($player)){
+		$errors[] = "Player $player already exists!";
+	} else {
+		$ctrl->db->insert_new_player($player);
+		$out[] = "New player $player entered with 0 points.";
+	}
+}
 ?>
 
 
@@ -50,7 +65,7 @@ foreach($ctrl->db->get_stats() as $player){
 }
 ?>
 <br/><br/>
+Errors: <?php echo print_r($ctrl->errors,true); ?>
 <br/>
-OK: <?php echo print_r($ctrl->out["ok"],true); ?><br/>
-ERRORS: <?php echo print_r($ctrl->out["error"],true); ?>
+Output: <?php echo print_r($ctrl->out,true); ?>
 </body></html>
