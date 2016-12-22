@@ -1,12 +1,15 @@
-<?php namespace pong; ?>
+<?php 
+namespace pong\html;
+//require ROOT."/vendor/autoload.php";
+?>
 <html>
 <?php include("inc/meta.html"); ?>
 <body>
 
 <?php
-require_once("../php/GenericController.php");
+require_once("../controllers/GenericController.php");
 
-$ctrl = new GenericController();
+$ctrl = new \pong\controllers\GenericController();
 
 // Insert new game.
 if(isset($_POST["newgame"]) &&
@@ -28,7 +31,7 @@ else if(isset($_POST["newplayer"]) && sizeof($_POST["player"]))
 } 
 ?>
 
-
+New game:
 <form action="index.php" method=POST>
 	<input type="hidden" name="newgame" value="1"/>
 	Winner <input type="text" name="winner"/><br/>
@@ -36,13 +39,14 @@ else if(isset($_POST["newplayer"]) && sizeof($_POST["player"]))
 	<input type="checkbox" name="draw" value="draw">Draw game
 	<input type="submit" value="Submit"/>
 </form>
-
-
+<br/>
+New player:
 <form action="index.php" method="POST">
 	<input type="hidden" name="newplayer" value="1"/>
 	<input type="text" name="player"/><br/>
 	<input type="submit" value="Submit"/>
 </form>
+<br/>
 Statistics:
 <?php 
 foreach($ctrl->db->get_stats() as $player){
@@ -51,6 +55,8 @@ foreach($ctrl->db->get_stats() as $player){
 ?>
 <br/><br/>
 <br/>
-OK: <?php echo print_r($ctrl->out["ok"],true); ?><br/>
-ERRORS: <?php echo print_r($ctrl->out["error"],true); ?>
+<?php foreach($ctrl->out as $type => $val){
+	echo "Output type $type: ".print_r($val,true)."\n<br/>";
+}
+?>
 </body></html>

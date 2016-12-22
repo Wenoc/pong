@@ -1,5 +1,6 @@
 <?php
-namespace pong;
+namespace pong\controllers;
+require __DIR__ . '/../../vendor/autoload.php';
 define('DB_SERVER','localhost');
 define('DB_USERNAME','webuser');
 define('DB_PASSWORD','vrfaehinxh54wonghc7w459gh8cmw45px9gwx89gcmyo5w4hgeb5vsl8gbey4stve45ytdghrsfgcknfgy345ndgfi5ngcfierfxmi8');

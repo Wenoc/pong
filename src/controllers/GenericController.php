@@ -1,12 +1,13 @@
 <?php
-namespace pong;
+namespace pong\controllers;
+require __DIR__ . '/../../vendor/autoload.php';
 //echo phpinfo();
 require_once("DB.php");
 
 class GenericController
 {
 	public $db;
-	public $out = array("ok"=>array(),"errors"=>array());
+	public $out = array();
 	public $K = 32; // Magic variable
 	public $DRIFT = 0; // Drift coefficient (losers will lose less than the winner gains)
 	public $USEFLOOR=0; // Use floor system
@@ -18,10 +19,11 @@ class GenericController
 	public function get_out(){
 		return $this->out;
 	}
+
 	public function add_out($wat,$type = "ok"){
-		if($error)
-			$this->out["errors"][] = $wat;
-		$this->out["ok"][] = $wat;
+		if(!isset($this->out[$type]))
+			$this->out[$type] = array();
+		$this->out[$type][] = $wat;
 		return $this->out;
 	}
 
@@ -29,21 +31,23 @@ class GenericController
 	{
 		$player = strtolower((string)$_POST["player"]);
 		if($this->db->player_exists($player)){
-			$this->out["errors"][] = "Player $player already exists!";
+			$this->add_out("Player $player already exists!","errors");
 		} else {
 			$this->db->insert_new_player($player);
-			$this->out["ok"][] = "New player $player entered with 0 points.";
+			$this->add_out("New player $player entered with 0 points.");
 		}
-		return $this->out;
+		//return $this->out;
 	}
 
 	function insert_new_game($p1,$p2,$winner)
 	{
 		foreach(array($p1,$p2) as $player){
 			if(!$this->db->player_exists($player)){
-				return array("errors" => "Player $player does not exist!");
+				$this->add_out("Player $player does not exist!","errors");
 			}
 		}
+		if(count($this->out["errors"]))
+			return;
 		$this->add_out("inserting new game with p1=$p1 p2=$p2 winner=$winner");
 		$result = "0"; // In case we want to store the game result at some point in the future.
 		$newelo = $this->calc_elo($p1,$p2,$winner);
@@ -60,7 +64,8 @@ class GenericController
 		$result = $this->db->do_insert_game($record);
 		$this->db->update_elo($p1,$newelo[0]);
 		$this->db->update_elo($p2,$newelo[1]);
-		$this->add_out("Game added.");
+		$this->add_out("New game added.");
+		$this->add_out(array($p1 => $newelo[0], $p2 => $newelo[1]),"result");
 	}
 
 	function calc_elo($p1,$p2,$winner)
