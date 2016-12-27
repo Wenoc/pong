@@ -34,3 +34,6 @@ GET or POST.
   }
   "api-key"=[api-key]
 }
+
+Example: 
+http://localhost/pong/api.php?command=new_player&name=johndoe&api-key=ABCDEFGHIJKLMNO
