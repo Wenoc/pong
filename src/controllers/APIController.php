@@ -1,29 +1,37 @@
 <?php
 namespace pong\controllers;
 require __DIR__ . '/../../vendor/autoload.php';
-require_once("GenericController.php");
 
 class APIController extends GenericController
 {
-	private $db;
-	private $ctrl;
-
-	__construct(){
-		$this->db = new DB();
-		$this->ctrl = new GenericController();
-	}
-
-	public post($post)
+	public function post($post)
 	{
+		if(!isset($post["api-key"])){
+			$this->add_out("No API key given.","errors","ERROR");
+			return;
+		} else if(!in_array($post["api-key"],unserialize(API_KEYS))){
+			$this->add_out("Invalid API key","errors","ERROR");
+			return;
+		}
+
 		switch ($post["command"]) {
+
 			case 'new_game':
-				# code...
+				if(isset($post["p1"]) && isset($post["p2"]) && isset($post["winner"])){
+						$this->insert_new_game($post["p1"],$post["p2"],$post["winner"]);
+				}
 				break;
-			
+			case 'new_player':
+				if(isset($post["name"])){
+					$this->insert_new_player($post["name"]);
+				} else {
+					$this->add_out("No name given.","strout","ERROR");
+				}
 			default:
 				# code...
 				break;
 		}
+		return ;
 	}
 }
 ?>

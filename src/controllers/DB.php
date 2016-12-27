@@ -3,7 +3,7 @@ namespace pong\controllers;
 require __DIR__ . '/../../vendor/autoload.php';
 include("../inc/db.inc");
 
-class Db
+class DB
 {
     private $db;
 
@@ -25,7 +25,7 @@ class Db
 
     private function sql($query)
     {
-//        echo "QDEBUG: $query<br/>";
+        // echo "QDEBUG: $query<br/>";
         $result = pg_query($this->db,$query);
         // echo "RDEBUG: ".print_r($result,true)."<br/>";
         return $result;
@@ -84,7 +84,6 @@ class Db
     {
         $query = "INSERT INTO users (name,elo,games) VALUES ('".trim(strtolower(pg_escape_string($player)))."',0,0)";
         $res = $this->sql_get_single($query);
-        print_r($res);
     }
     public function update_elo($player,$elo){
         if($player && isset($elo)){

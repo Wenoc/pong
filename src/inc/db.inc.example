@@ -5,4 +5,5 @@ define('DB_PASSWORD','password');
 define('DB_DATABASE','database_name');
 define('SLACK_TOKEN','abcdefgh');
 define('ELASTIC_IP','1.2.3.4');
+define('API_KEYS',serialize(array(SLACK_TOKEN))); // Add new api keys here.
 ?>

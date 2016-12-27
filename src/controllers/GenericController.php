@@ -1,8 +1,6 @@
 <?php
 namespace pong\controllers;
 require __DIR__ . '/../../vendor/autoload.php';
-//echo phpinfo();
-require_once("DB.php");
 
 class GenericController
 {
@@ -14,41 +12,56 @@ class GenericController
 	public $FLOOR=100; // Minimum amount of ELO ranking one can have.
 
 	function __construct(){
-		$this->db = new DB();
+		$this->db = new \pong\controllers\DB();
 	}
+
+	// We have to have this function, obviously.
 	public function get_out(){
 		return $this->out;
 	}
 
-	public function add_out($wat,$type = "ok"){
-		if(!isset($this->out[$type]))
-			$this->out[$type] = array();
-		$this->out[$type][] = $wat;
-		return $this->out;
+	// Makes an output array thing. To support all kinds of interfaces.
+	public function add_out($str,$key,$status=null){
+		if(isset($this->out[$key])){
+			if(is_array($this->out[$key])){
+				$this->out[$key][] = $str;
+			} else {
+				$this->out[$key] = array($this->out[$key],$str);
+			}
+		} else {
+			$this->out[$key] = $str;
+		}
+		if($status !== null){
+			$this->out["status"] = $status;
+		}
 	}
 
+	// Inserts new player into db.
 	function insert_new_player($player)
 	{
-		$player = strtolower((string)$_POST["player"]);
+		$player = strtolower($player);
 		if($this->db->player_exists($player)){
-			$this->add_out("Player $player already exists!","errors");
+			$this->add_out("Player '$player' already exists!","errors","ERROR");
 		} else {
 			$this->db->insert_new_player($player);
-			$this->add_out("New player $player entered with 0 points.");
+			$this->add_out("New player $player entered with 0 points.","strout","OK");
 		}
-		//return $this->out;
+		return;
 	}
 
+	// Inserts new game and calculates ELO.
 	function insert_new_game($p1,$p2,$winner)
 	{
+		$p1 = strtolower($p1);
+		$p2 = strtolower($p2);
 		foreach(array($p1,$p2) as $player){
 			if(!$this->db->player_exists($player)){
-				$this->add_out("Player $player does not exist!","errors");
+				$this->add_out("Player '$player' does not exist!","errors","ERROR");
 			}
 		}
-		if(count($this->out["errors"]))
+		if(count($this->out["errors"])){
 			return;
-		$this->add_out("inserting new game with p1=$p1 p2=$p2 winner=$winner");
+		}
 		$result = "0"; // In case we want to store the game result at some point in the future.
 		$newelo = $this->calc_elo($p1,$p2,$winner);
 	    $record = array(
@@ -64,10 +77,12 @@ class GenericController
 		$result = $this->db->do_insert_game($record);
 		$this->db->update_elo($p1,$newelo[0]);
 		$this->db->update_elo($p2,$newelo[1]);
-		$this->add_out("New game added.");
-		$this->add_out(array($p1 => $newelo[0], $p2 => $newelo[1]),"result");
+		$this->add_out("New game added.","strout");
+		$this->add_out(array($p1 => $newelo[0], $p2 => $newelo[1]),"result","OK");
 	}
 
+
+	// Calculates new ELO rank
 	function calc_elo($p1,$p2,$winner)
 	{
 		$p1 = trim(strtolower($p1));
