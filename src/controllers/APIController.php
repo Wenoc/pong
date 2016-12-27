@@ -27,9 +27,11 @@ class APIController extends GenericController
 				} else {
 					$this->add_out("No name given.","strout","ERROR");
 				}
-			default:
-				# code...
 				break;
+			case 'statistics': 
+			default:
+				$this->out["statistics"] = $this->db->get_stats( ((int)$post["lim"]>0 ? (int)$post["lim"] : 0) );
+			break;
 		}
 		return ;
 	}

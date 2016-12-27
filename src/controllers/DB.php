@@ -63,8 +63,11 @@ class DB
         $query = "SELECT elo from users where name='".trim(strtolower(pg_escape_string($player)))."'";
         return $this->sql_get_single($query);
     }
-    public function get_stats(){
-        $sql = "SELECT name,elo,games from users order by elo desc";
+    public function get_stats($lim = 0){
+        if($lim)
+            $sql = "SELECT name,elo,games from users order by elo desc limit ".(int)$lim;
+        else
+            $sql = "SELECT name,elo,games from users order by elo desc";
         return $this->sql_result_array($sql);
     }
 
