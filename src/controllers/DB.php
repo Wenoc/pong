@@ -2,6 +2,7 @@
 namespace pong\controllers;
 require __DIR__ . '/../../vendor/autoload.php';
 include("../inc/db.inc");
+
 class Db
 {
     private $db;

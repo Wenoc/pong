@@ -1,5 +1,8 @@
+<?php
 define('DB_SERVER','localhost');
 define('DB_USERNAME','www');
 define('DB_PASSWORD','password');
 define('DB_DATABASE','database_name');
-
+define('SLACK_TOKEN','abcdefgh');
+define('ELASTIC_IP','1.2.3.4');
+?>
