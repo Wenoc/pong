@@ -1,2 +1,3 @@
 /vendor
 /src/inc/db.inc
+/src/controllers/insert_db_info.php
