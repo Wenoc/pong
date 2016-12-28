@@ -1,5 +1,6 @@
 <?php
-require 'vendor/autoload.php';
+namespace pong\controllers;
+require __DIR__ . '/../../vendor/autoload.php';
 use PhpSlackBot\Bot;
 include("../inc/db.inc");
 
@@ -18,7 +19,7 @@ class PongBot extends \PhpSlackBot\Command\BaseCommand {
 
 $bot = new Bot();
 $bot->setToken(SLACK_BOT_TOKEN); // Get your token here https://my.slack.com/services/new/bot
-$bot->loadCommand(new MyCommand());
+$bot->loadCommand(new PongBot());
 $bot->loadInternalCommands(); // This loads example commands
 $bot->run();
 
