@@ -10,6 +10,19 @@ License: MIT.
 
 Author: Simon Cederqvist
 
+**Install**
+
+Have postgresql, php55, apache24, php-pgsql plugin.
+
+Clone the repository.
+Create a 'pong' datababase.
+Create a database user that has access to said database, in the example I use 'webuser'.
+Import pong.sql to set up your database.
+Create a slack bot user, and copy the token into db.inc.
+
+run *php composer.phar update* and *php composer.phar install*
+
+To run the Slack bot, go to src/controllers/ and run bot.php.
 
 **API usage**
 
