@@ -18,7 +18,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 	}
 
 	protected function execute($data, $context) {
-		if ($data['type'] == 'message') {
+		if (isset($data['type']) && $data['type'] == 'message') {
 			$msg = explode(" ", strtolower($data['text']));
 			if(!count($msg) || !$this->validate_cmd($msg[0])){
 				return; // We do not want to put any effort into non-commands.

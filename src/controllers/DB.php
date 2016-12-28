@@ -20,7 +20,9 @@ class DB
  * Private
  ***********/
     private function connect(){
-        $this -> db = pg_connect("dbname=".DB_DATABASE." host=".DB_SERVER." user=".DB_USERNAME." password=".DB_PASSWORD." options='--client_encoding=UTF8'");
+//        $this -> db = pg_connect("dbname=".DB_DATABASE." host=".DB_SERVER." user=".DB_USERNAME." password=".
+        $this -> db = pg_connect("dbname=".DB_DATABASE." user=".DB_USERNAME." password=".
+            DB_PASSWORD." options='--client_encoding=UTF8'");
     }
 
     private function sql($query)
