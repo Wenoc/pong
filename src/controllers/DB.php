@@ -16,20 +16,20 @@ class DB
     }
 
 
-/***********
- * Private
- ***********/
+    /***********
+     * Private
+     ***********/
     private function connect(){
-//        $this -> db = pg_connect("dbname=".DB_DATABASE." host=".DB_SERVER." user=".DB_USERNAME." password=".
+    //        $this -> db = pg_connect("dbname=".DB_DATABASE." host=".DB_SERVER." user=".DB_USERNAME." password=".
         $this -> db = pg_connect("dbname=".DB_DATABASE." user=".DB_USERNAME." password=".
             DB_PASSWORD." options='--client_encoding=UTF8'");
     }
 
     private function sql($query)
     {
-        // echo "QDEBUG: $query<br/>";
+            // echo "QDEBUG: $query<br/>";
         $result = pg_query($this->db,$query);
-        // echo "RDEBUG: ".print_r($result,true)."<br/>";
+            // echo "RDEBUG: ".print_r($result,true)."<br/>";
         return $result;
     }
 
@@ -58,9 +58,9 @@ class DB
             return 0;
     }
 
-/********************
- * Public interface 
- *******************/
+    /********************
+     * Public interface 
+     *******************/
     public function get_elo($player){
         $query = "SELECT elo from users where name='".trim(strtolower(pg_escape_string($player)))."'";
         return $this->sql_get_single($query);
@@ -114,6 +114,18 @@ class DB
     public function add_loss($player){
         $query = "UPDATE users SET losses = losses + 1 WHERE name='".trim(strtolower(pg_escape_string($player)))."'";
         $this->sql($query);
+    }
+    public function update_games(){
+        $names = $this->sql_result_array("SELECT name FROM users");
+        foreach ($names as $n)
+        {
+            $name=$n["name"];
+            $wins = $this->sql_get_single("SELECT count(winner) FROM games WHERE winner='$name'");
+            $total = $this->sql_get_single("SELECT count(*) FROM games WHERE player1='$name' OR player2='$name'");
+            $losses = $total - $wins;
+            $this->sql("UPDATE users SET games=$games,wins=$wins,losses=$losses WHERE name='$name'");
+            echo "$name games:".print_r($total,true)." wins:$wins losses:$losses\n";
+        }
     }
 }
 
