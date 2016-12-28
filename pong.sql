@@ -94,7 +94,9 @@ CREATE TABLE users (
     games integer DEFAULT 0 NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     slack_uid character varying,
-    admin boolean DEFAULT false NOT NULL
+    admin boolean DEFAULT false NOT NULL,
+    wins integer DEFAULT 0 NOT NULL,
+    losses integer DEFAULT 0 NOT NULL
 );
 
 

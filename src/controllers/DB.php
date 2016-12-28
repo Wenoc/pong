@@ -67,9 +67,9 @@ class DB
     }
     public function get_stats($lim = 0){
         if($lim)
-            $sql = "SELECT name,elo,games from users order by elo desc limit ".(int)$lim;
+            $sql = "SELECT name,elo,games,wins,losses from users order by elo desc limit ".(int)$lim;
         else
-            $sql = "SELECT name,elo,games from users order by elo desc";
+            $sql = "SELECT name,elo,games,wins,losses from users order by elo desc";
         return $this->sql_result_array($sql);
     }
 
@@ -106,6 +106,14 @@ class DB
             $query = "UPDATE users SET elo=$elo, games = games + 1 WHERE name='".pg_escape_string($player)."'";
             return $this->sql($query);
         }
+    }
+    public function add_win($player){
+        $query = "UPDATE users SET wins = wins + 1 WHERE name='".trim(strtolower(pg_escape_string($player)))."'";
+        $this->sql($query);
+    }
+    public function add_loss($player){
+        $query = "UPDATE users SET losses = losses + 1 WHERE name='".trim(strtolower(pg_escape_string($player)))."'";
+        $this->sql($query);
     }
 }
 
