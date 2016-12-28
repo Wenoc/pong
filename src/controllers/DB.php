@@ -123,7 +123,7 @@ class DB
             $wins = $this->sql_get_single("SELECT count(winner) FROM games WHERE winner='$name'");
             $total = $this->sql_get_single("SELECT count(*) FROM games WHERE player1='$name' OR player2='$name'");
             $losses = $total - $wins;
-            $this->sql("UPDATE users SET games=$games,wins=$wins,losses=$losses WHERE name='$name'");
+            $this->sql("UPDATE users SET games=$total,wins=$wins,losses=$losses WHERE name='$name'");
             echo "$name games:".print_r($total,true)." wins:$wins losses:$losses\n";
         }
     }
