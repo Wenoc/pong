@@ -25,7 +25,7 @@ class APIController extends GenericController
 				if(isset($post["name"])){
 					$this->insert_new_player($post["name"]);
 				} else {
-					$this->add_out("No name given.","strout","ERROR");
+					$this->add_out("No name given.","msg","ERROR");
 				}
 				break;
 			case 'statistics': 

@@ -77,7 +77,18 @@ class DB
         $result = $this->sql($query);
         return $result;
     }
-
+    public function is_admin($player) 
+    {
+        $query = "SELECT admin FROM users WHERE name='".trim(strtolower(pg_escape_string($player)))."'";
+        $admin = $this->sql_get_single($query);
+        return $admin=='t';
+    }
+    public function set_admin($player,$b)
+    {
+        $query = "UPDATE users SET admin='".($b?"t":"f")."' WHERE name='".trim(strtolower(pg_escape_string($player)))."'";
+        $this->sql($query);
+        return;
+    }
     public function player_exists($player)
     {
         $query = "SELECT count(*) from users where name='".trim(strtolower(pg_escape_string($player)))."'";
