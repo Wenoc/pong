@@ -76,7 +76,7 @@ class GenericController
 			"match_result" => $result);
 		if($winner != "draw"){
 			$this->db->add_win(($p1==$winner?$p1:$p2));
-			$this->db->add_loss(($p2==$winner?$p2:$p1));
+			$this->db->add_loss(($p1==$winner?$p2:$p1));
 		}
 		$result = $this->db->do_insert_game($record);
 		$this->db->update_elo($p1,$newelo[0]);
@@ -131,7 +131,7 @@ class GenericController
 	}
 	public function pretty_score($n) {
 		$arr = $this->db->get_stats($n);
-		$out = "Scoreboard".($n?" ($n)":"")."\n-------------------------------------\n";
+		$out = "Scoreboard".($n?" ($n)":"")."\n----------------------------------------------\n";
 		$out.= "Player                  Elo  Games Wins Losses\n";
 		foreach($arr as $player){
 			$out.=str_pad($player["name"], 21).
