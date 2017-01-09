@@ -134,8 +134,8 @@ class GenericController
 		$out = "Scoreboard".($n?" ($n)":"")."\n----------------------------------------------\n";
 		$out.= "Player     Elo  Games Wins Losses\n";
 		foreach($arr as $player){
-			$out.=str_pad($player["name"], 12).
-			str_pad((string)$player["elo"],6," ",STR_PAD_LEFT).
+			$out.=str_pad($player["name"], 9).
+			str_pad((string)$player["elo"],4," ",STR_PAD_LEFT).
 			str_pad((string)$player["games"],6," ",STR_PAD_LEFT).
 			str_pad((string)$player["wins"],6," ",STR_PAD_LEFT).
 			str_pad((string)$player["losses"],6," ",STR_PAD_LEFT).
