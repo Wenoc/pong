@@ -132,9 +132,9 @@ class GenericController
 	public function pretty_score($n) {
 		$arr = $this->db->get_stats($n);
 		$out = "Scoreboard".($n?" ($n)":"")."\n----------------------------------------------\n";
-		$out.= "Player                  Elo  Games Wins Losses\n";
+		$out.= "Player     Elo  Games Wins Losses\n";
 		foreach($arr as $player){
-			$out.=str_pad($player["name"], 21).
+			$out.=str_pad($player["name"], 12).
 			str_pad((string)$player["elo"],6," ",STR_PAD_LEFT).
 			str_pad((string)$player["games"],6," ",STR_PAD_LEFT).
 			str_pad((string)$player["wins"],6," ",STR_PAD_LEFT).
