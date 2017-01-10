@@ -153,8 +153,8 @@ class GenericController
 		$tournament_id = $this->db->tournament_get_active_id();
 		$players = $this->db->tournament_get_players($tournament_id);
 
-		if(count($players) < 2){
-			$this->add_out("Tournament needs at least two players.","msg","ERROR");
+		if(count($players) < 4){
+			$this->add_out("Tournament needs at least four players. Otherwise you would have no misery or tears to suckle and nourish yourself on.","msg","ERROR");
 			return;
 		}
 
@@ -183,7 +183,7 @@ class GenericController
 //		echo print_r($pairs,true);
 //		$pairs = $array_chunk($pairs,2);
 		if($head_honcho){
-			$spot = ceil(count($pairs)/2);
+			$spot = ceil(count($pairs)/2)-1;
 			$key = array_keys($pairs)[$spot];
 			$pairs[$key] = array($head_honcho,$pairs[$key]);
 		}
@@ -191,7 +191,7 @@ class GenericController
 		{
 			$pairs = array_chunk($pairs,2);
 		}
-		echo print_r($pairs,true);
+		$this->add_out(print_r($pairs,true),"msg","OK");
 //		$final_id = $this->tournament_new_game($tournament_id,0,null,null); 
 		$this->tournament_game_iter($pairs,0,$tournament_id);
 		$this->db->tournament_start($tournament_id);
@@ -204,14 +204,22 @@ class GenericController
 	}
 
 	function tournament_game_iter($pairs,$parent,$tournament_id){
-		echo "Inserting : ".print_r($pairs,true)."\n";
-		if(isset($pairs[0]["name"])){
+		//echo "Inserting : ".print_r($pairs,true)."\n";
+		if(isset($pairs[0]["name"]) && isset($pairs[1]["name"])){
 			$this->tournament_new_game($tournament_id,$parent,$pairs[0]["name"],$pairs[1]["name"]);
 		} else {
-			if(count($pairs) > 1)
-				$parent = $this->tournament_new_game($tournament_id,$parent);
-			foreach($pairs as $match){
-				$this->tournament_game_iter($match,$parent,$tournament_id);
+			if(count($pairs) == 1){
+				$this->tournament_game_iter($pairs[0],$parent,$tournament_id);
+			} else {
+				if(isset($pairs[0]["name"])){
+					$parent = $this->tournament_new_game($tournament_id, $parent, $pairs[0]["name"]);
+					$this->tournament_game_iter($pairs[1],$parent,$tournament_id);
+				} else {
+					$parent = $this->tournament_new_game($tournament_id,$parent);
+					foreach($pairs as $match){
+						$this->tournament_game_iter($match,$parent,$tournament_id);
+					}
+				}
 			}
 		}
 	}
@@ -325,9 +333,14 @@ class GenericController
 		return $out;
 	}
 	function tournament_pretty(){
-		$tournament = $this->db->tournament_get_active_id("all");	
+		$tournament = $this->tournament_reverse_engineer($this->db->tournament_get_full_game_list());
+		$this->add_out(print_r($tournament,true),"msg","OK");
 //		print_r($tournament);
-		return $tournament;
+		//return $tournament;
+	}
+	function tournament_reverse_engineer($games)
+	{
+		return $games;
 	}
 }
 ?>

@@ -164,7 +164,12 @@ class DB
         $tournament_id = $this->tournament_get_active_id();
         return $this->sql_get_single("UPDATE tournaments SET finished=now(),winner='".$this->fix($winner)."',active=false WHERE tournament_id=".(int)$tournament_id);
     }
-
+    public function tournament_get_full_game_list()
+    {
+        $query = "SELECT tournament_name,player1,player2,tournament_games.winner,game_id,parent_game ".
+        " FROM tournaments LEFT JOIN tournament_games USING (tournament_id) WHERE active=true ORDER BY parent_game ASC";
+        return $this->sql_result_array($query);
+    }
     public function tournament_cancel($winner){
         $this->sql("UPDATE tournaments SET winner='".$this->fix($winner)."',finished=NOW(),active=false WHERE active=true");
     }
