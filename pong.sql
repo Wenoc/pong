@@ -149,7 +149,9 @@ CREATE TABLE tournaments (
     initialized timestamp with time zone DEFAULT now() NOT NULL,
     started timestamp with time zone,
     finished timestamp with time zone,
-    winner character varying
+    winner character varying,
+    creator character varying NOT NULL,
+    active boolean DEFAULT true NOT NULL
 );
 
 
@@ -212,6 +214,13 @@ ALTER TABLE ONLY tournaments
 --
 
 CREATE INDEX fki_challenger_constraint ON challenges USING btree (challenger);
+
+
+--
+-- Name: tournaments_active_idx; Type: INDEX; Schema: public; Owner: webuser
+--
+
+CREATE UNIQUE INDEX tournaments_active_idx ON tournaments USING btree (active) WHERE (active = true);
 
 
 --
