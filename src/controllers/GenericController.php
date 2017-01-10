@@ -34,7 +34,7 @@ class GenericController
 		if($status !== null){
 			$this->out["status"] = $status;
 		}
-		print_r($this->out);
+	//	print_r($this->out);
 	}
 
 	// Inserts new player into db.
@@ -85,9 +85,155 @@ class GenericController
 		$this->add_out(array($p1 => array("old"=>$p1_elo, "new"=>$newelo[0]), 
 			$p2 => array("old"=>$p2_elo,"new"=>$newelo[1])),
 		"elo","OK");
+		if($this->tournament_test_players_should_play($p1,$p2)){
+			$res = $this->tournament_register_win($p1,$p2,$winner);
+			if($res==1)
+				$this->add_out("Tournament win registered, $winner won!"."msg","OK");
+			if($res==-1){
+				$this->add_out("We have a tournament winner! Three cheers for $winner!","msg","OK");
+				$this->tournament_finish($winner);
+			}
+		} else {
+			$this->add_out("No tournament game pending.","msg","OK");
+		}
+	}
+	// Creates a new tournament if none is going on.
+	function tournament_init($name) {
+		if($this->db->tournament_is_initialized()){
+			$this->add_out("There is already a tournament in progress!","msg","ERROR");
+			return;
+		} else {
+	 		$this->add_out("Tournament $name has been created!","msg","OK");
+	 		return $this->db->tournament_init($name);
+	 	}
+	}
+	function tournament_finish($winner = 0){
+		return $this->db->tournament_finish($winner);
+	}
+	function tournament_register($name){		
+		$msg = $this->db->tournament_register_player($name);
+		if($msg)
+			$this->add_out($msg,"msg","ERROR");
+	}
+	function tournament_start(){
+		if(!$this->db->tournament_is_initialized()){
+			$this->add_out("Tournament has not been created yet.","msg","ERROR");
+			return;
+		}
+		if($this->db->tournament_is_started()){
+			$this->add_out("Tournament has already started","msg","ERROR");
+			return;
+		}
+		$tournament_id = $this->db->tournament_get_active_id();
+		$players = $this->db->tournament_get_players($tournament_id);
+
+		if(count($players) < 2){
+			$this->add_out("Tournament needs at least two players.","msg","ERROR");
+			return;
+		}
+
+
+		$pairs = array();		
+		$head_honcho = null;
+		if(count($players)%2){ // If the amount of participants is uneven, we remove the top player who can skip first round. 
+//			echo "WE HAVE A HEAD HONCHO\n";
+			$head_honcho = $players[0];
+//			$pairs[] = array($players[0],null);
+			unset($players[0]);
+		}
+		$players = array_reverse($players); // This is because if the amount of players isn't a factor of 2^N, the last group will be the smallest
+											// and the worst players would get to skip a tier. Doing it reversed means the best players will get to skip.
+		while(count($players)){
+			$middleElem = ceil(count($players)/2);
+			$keys = array_keys($players);
+			$middleKey = $keys[$middleElem];
+			$topKey = $keys[0];
+			$pairs[] = array($players[$topKey],$players[$middleKey]);
+			unset($players[$topKey]);
+			unset($players[$middleKey]);
+		}
+		
+//		echo "BEFORE head_honcho:".$head_honcho."\n";
+//		echo print_r($pairs,true);
+//		$pairs = $array_chunk($pairs,2);
+		if($head_honcho){
+			$spot = ceil(count($pairs)/2);
+			$key = array_keys($pairs)[$spot];
+			$pairs[$key] = array($head_honcho,$pairs[$key]);
+		}
+		while(count($pairs) > 2)
+		{
+			$pairs = array_chunk($pairs,2);
+		}
+		echo print_r($pairs,true);
+//		$final_id = $this->tournament_new_game($tournament_id,0,null,null); 
+		$this->tournament_game_iter($pairs,0,$tournament_id);
+		$this->db->tournament_start($tournament_id);
+		$this->add_out("Tournament has started!","msg","OK");			
+		return $pairs;
 	}
 
+	function tournament_new_game($tournament_id,$parent_game=null,$player1=null,$player2=null){
+		return $this->db->tournament_new_game($tournament_id,$parent_game,$player1,$player2);
+	}
 
+	function tournament_game_iter($pairs,$parent,$tournament_id){
+		echo "Inserting : ".print_r($pairs,true)."\n";
+		if(isset($pairs[0]["name"])){
+			$this->tournament_new_game($tournament_id,$parent,$pairs[0]["name"],$pairs[1]["name"]);
+		} else {
+			if(count($pairs) > 1)
+				$parent = $this->tournament_new_game($tournament_id,$parent);
+			foreach($pairs as $match){
+				$this->tournament_game_iter($match,$parent,$tournament_id);
+			}
+		}
+	}
+
+/*	function tournament_game_iter($pairs, $parent, $tournament_id)
+	{
+		if(!isset($pairs[0]["name"]) && isset($pairs[1])) {
+			$this->tournament_new_game($tournament_id,$this->tournament_game_iter($pairs,$parent,$tournament_id));
+			$this->
+		}
+	}
+*/
+	function tournament_test_players_should_play($p1,$p2) {
+		if(!$this->db->tournament_is_started()){
+			$this->add_out("No tournament started.","msg","OK");
+			return 0;
+		}
+		$tournament_id = $this->db->tournament_get_active_id_in_progress();
+		$tournament_players = $this->db->tournament_get_players($tournamnent_id);
+		if(!$this->db->tournament_player_has_signed($p1)){
+			$this->add_out("Player $p1 has not signed up for the tournament.");
+			return 0;
+		}
+		if(!$this->db->tournament_player_has_signed($p2)){
+			$this->add_out("Player $p2 has not signed up for the tournament.");
+			return 0;
+		}
+		if($this->db->tournament_game_pending($p1,$p2)){
+			$this->add_out("Players have no game pending.","msg","OK");
+			return 1;
+		}
+		return 0;
+	}
+	function tournament_register_win($p1,$p2,$winner) {
+		return $this->db->tournament_register_win($p1,$p2,$winner);
+	}
+/*
+	function divide_and_conquer($pairs)
+	{
+			if(count($pairs)<3)
+			return $pairs;
+		if(count($pairs) == 3){
+			$keys = array_keys($pairs);
+			return array(array($pairs[$keys[1]],$pairs[$keys[2]]),$pairs[$keys[0]]);
+		}
+		return array_chunk($pairs,2);
+	}
+*/
 	// Calculates new ELO rank
 	function calc_elo($p1,$p2,$winner)
 	{
@@ -116,9 +262,13 @@ class GenericController
 			$r1 = (int)max($this->FLOOR,$r1);
 			$r2 = (int)max($this->FLOOR,$r2);
 		} 
-//		$this->add_out("p1:$p1 p2:$p2 p1_elo:$p1_elo p2_elo:$p2_elo R1:$R1 R2:$R2 E1:$E1 E2:$E2 S1:$S1 S2:$S2 r1:$r1 r2:$r2 winner:($winner)");
 		return array($r1,$r2);
 	}
+
+
+	/******************/
+	/* Visual outputs */
+	/******************/
 	public function pretty_elo(){
 		if(!$this->out["elo"])
 			return "";
@@ -143,7 +293,11 @@ class GenericController
 		}
 		return $out;
 	}
-
+	function tournament_pretty(){
+		$tournament = $this->db->tournament_get_active_id("all");	
+//		print_r($tournament);
+		return $tournament;
+	}
 }
 ?>
 

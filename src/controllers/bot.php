@@ -131,6 +131,31 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 					$this->send($data["channel"],null,"You are not an admin, $username.");
 				}
 				break;
+				case "tournament":
+				case "cup":
+				case "tour":
+					if(!isset($msg[1])){
+						$this->send($data["channel"],null,"Usage: game <winner> <loser> (draw)");
+						break;
+					}
+					switch (trim(strtolower($msg[1]))) {
+						"cancel":
+						"create":
+							$ctrl->tournament_new(implode(" ", array_slice(explode(" ", $data["text"]), 2)));
+							$this->send($data["channel"],null,$ctrl->out["msg"]);
+							break;
+						"register":
+							$ctrl->tournament_register($username);
+							$this->send($data["channel"],null,$ctrl->out["msg"]);
+							break;
+						"stats":
+						"status":
+							$this->send($data["channel"],null,$ctrl->tournament_pretty());
+							break;					
+						default : 
+							$this->send($data["channel"],null,"Usage: `cup [register|stats|create|cancel(admin)]`");
+							break;
+					}
 			}
 		}
 	}
