@@ -137,23 +137,23 @@ class DB
     {
         return $this->sql_result_array("SELECT * FROM tournaments");
     }
+    public function tournament_owner_inactive()
+    {
+        return $this->sql_get_single("SELECT count(*) FROM tournaments WHERE active=true AND finished IS NULL AND (NOW() - interval '7 day') > initialized");
+    }
     public function tournament_is_initialized(){
-        return $this->sql_get_single("SELECT count(*) FROM tournaments WHERE initialized IS NOT NULL AND finished IS NULL");
+        return $this->sql_get_single("SELECT count(*) FROM tournaments WHERE active=true");
     }
     public function tournament_is_started(){
-        return $this->sql_get_single("SELECT count(*) FROM tournaments WHERE started IS NOT NULL AND finished IS NULL");
+        return $this->sql_get_single("SELECT count(*) FROM tournaments WHERE active=true AND started IS NOT NULL AND finished IS NULL");
     }
     public function tournament_get_active_id()
     {
-        return $this->sql_get_single("SELECT tournament_id FROM tournaments WHERE finished IS NULL AND initialized IS NOT NULL");
+        return $this->sql_get_single("SELECT tournament_id FROM tournaments WHERE active = true");
     }
-    public function tournament_get_active_id_in_progress()
+    public function tournament_create($desc, $creator)
     {
-        return $this->sql_get_single("SELECT tournament_id FROM tournaments WHERE finished IS NULL AND started IS NOT NULL AND initialized IS NOT NULL");        
-    }
-    public function tournament_init($desc)
-    {
-        return $this->sql_get_single("INSERT INTO tournaments (tournament_name) VALUES ('".$this->fix($desc)."') RETURNING tournament_id");
+        return $this->sql_get_single("INSERT INTO tournaments (tournament_name,creator) VALUES ('".$this->fix($desc)."','".$this->fix($creator)."') RETURNING tournament_id");
     }
     public function tournament_start($tournament_id)
     {
@@ -161,9 +161,17 @@ class DB
     }
     public function tournament_finish($winner)
     {
-        $tournament_id = $this->tournament_get_active_id_in_progress();
-        return $this->sql_get_single("UPDATE tournaments SET finished=now(),winner='".$this->fix($winner)."' WHERE tournament_id=".(int)$tournament_id);
+        $tournament_id = $this->tournament_get_active_id();
+        return $this->sql_get_single("UPDATE tournaments SET finished=now(),winner='".$this->fix($winner)."',active=false WHERE tournament_id=".(int)$tournament_id);
     }
+
+    public function tournament_cancel($winner){
+        $this->sql("UPDATE tournaments SET winner='".$this->fix($winner)."',finished=NOW(),active=false WHERE active=true");
+    }
+    public function tournament_owner(){
+        return $this->sql_get_single("SELECT creator from tournaments WHERE active=true");
+    }
+
     // tournament_players
     public function tournament_get_players($tournament_id = 0)
     {
@@ -184,7 +192,7 @@ class DB
     public function tournament_register_player($name){
         $name = $this->fix($name);
         $tournament_id = $this->tournament_get_active_id();
-        if($this->tournament_player_has_signed($name))
+        if($this->tournament_player_has_signed($name) || !$tournament_id)
             return 0;
         $this->sql_get_single("INSERT INTO tournament_players (tournament_id,name) VALUES (".$tournament_id.",'".$name."')");
         return 1;
@@ -205,7 +213,7 @@ class DB
     public function tournament_game_pending($p1,$p2){
         $p1 = $this->fix($p1);
         $p2 = $this->fix($p2);
-        $tournament_id = $this->tournament_get_active_id_in_progress();
+        $tournament_id = $this->tournament_get_active_id();
         return $this->sql_get_single("SELECT count(*) FROM tournament_games WHERE winner IS NULL AND tournament_id=$tournament_id AND".
             " ((player1='$p1' AND player2='$p2') OR (player2='$p1' AND player1='$p2'))");
     }
@@ -213,7 +221,7 @@ class DB
         $p1 = $this->fix($p1);
         $p2 = $this->fix($p2);
         $winner = $this->fix($winner);
-        $tournament_id = $this->tournament_get_active_id_in_progress();
+        $tournament_id = $this->tournament_get_active_id();
         $game_id = $this->sql_get_single("SELECT game_id FROM tournament_games WHERE winner IS NULL AND tournament_id=$tournament_id AND".
             " ((player1='$p1' AND player2='$p2') OR (player2='$p1' AND player1='$p2'))");
 

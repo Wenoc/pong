@@ -23,10 +23,14 @@ class GenericController
 	// Makes an output array thing. To support all kinds of interfaces.
 	public function add_out($str,$key,$status=null){
 		if(isset($this->out[$key])){
-			if(is_array($this->out[$key])){
-				$this->out[$key][] = $str;
+			if($key == "msg"){
+				$this->out["msg"] = $this->out["msg"]."\n".$str;
 			} else {
-				$this->out[$key] = array($this->out[$key],$str);
+				if(is_array($this->out[$key])){
+					$this->out[$key][] = $str;
+				} else {
+					$this->out[$key] = array($this->out[$key],$str);
+				}
 			}
 		} else {
 			$this->out[$key] = $str;
@@ -88,32 +92,54 @@ class GenericController
 		if($this->tournament_test_players_should_play($p1,$p2)){
 			$res = $this->tournament_register_win($p1,$p2,$winner);
 			if($res==1)
-				$this->add_out("Tournament win registered, $winner won!"."msg","OK");
+				$this->add_out("Tournament game registered, $winner won a match!","msg","OK");
 			if($res==-1){
 				$this->add_out("We have a tournament winner! Three cheers for $winner!","msg","OK");
 				$this->tournament_finish($winner);
 			}
 		} else {
-			$this->add_out("No tournament game pending.","msg","OK");
+//			$this->add_out("No tournament game pending.","msg","OK");
 		}
 	}
 	// Creates a new tournament if none is going on.
-	function tournament_init($name) {
+	function tournament_create($name, $creator) {
+		if(!$this->db->player_exists($creator)){
+			$this->add_out("I don't know you, $creator","msg","ERROR");
+			return 0;
+		}
 		if($this->db->tournament_is_initialized()){
 			$this->add_out("There is already a tournament in progress!","msg","ERROR");
-			return;
+			return 0;
 		} else {
 	 		$this->add_out("Tournament $name has been created!","msg","OK");
-	 		return $this->db->tournament_init($name);
+	 		return $this->db->tournament_create($name,$creator);
 	 	}
 	}
 	function tournament_finish($winner = 0){
 		return $this->db->tournament_finish($winner);
 	}
+	function tournament_cancel($owner, $reason=null){
+		$real_owner = $this->db->tournament_owner();
+		if(trim(strtolower($owner)) != $real_owner){
+			if($this->db->tournament_owner_inactive()){
+				$this->db->tournament_cancel("cancelled by $owner".($reason?", reason: $reason":""));
+				$this->add_out("Tournament cancelled by $owner.","msg","OK");
+				return 1;
+			} else {
+				$this->add_out("You are not the owner of the running tournament, $owner. Please ask $real_owner to cancel it for you.","msg","ERROR");
+				return 0;
+			}
+		} else {
+				$this->db->tournament_cancel("cancelled by $owner".($reason?", reason: $reason":""));
+				$this->add_out("Tournament cancelled by $owner.","msg","OK");			
+		}
+	}
 	function tournament_register($name){		
 		$msg = $this->db->tournament_register_player($name);
-		if($msg)
-			$this->add_out($msg,"msg","ERROR");
+		if($msg==0)
+			$this->add_out("Failed to add player. Aready registered or no active tournament.","msg","ERROR");
+		else 
+			$this->add_out("Player $name signed up for the tournament!","msg","OK");
 	}
 	function tournament_start(){
 		if(!$this->db->tournament_is_initialized()){
@@ -203,7 +229,7 @@ class GenericController
 			$this->add_out("No tournament started.","msg","OK");
 			return 0;
 		}
-		$tournament_id = $this->db->tournament_get_active_id_in_progress();
+		$tournament_id = $this->db->tournament_get_active_id();
 		$tournament_players = $this->db->tournament_get_players($tournamnent_id);
 		if(!$this->db->tournament_player_has_signed($p1)){
 			$this->add_out("Player $p1 has not signed up for the tournament.");
@@ -214,7 +240,7 @@ class GenericController
 			return 0;
 		}
 		if($this->db->tournament_game_pending($p1,$p2)){
-			$this->add_out("Players have no game pending.","msg","OK");
+			//$this->add_out("Players have no game pending.","msg","OK");
 			return 1;
 		}
 		return 0;
@@ -222,6 +248,11 @@ class GenericController
 	function tournament_register_win($p1,$p2,$winner) {
 		return $this->db->tournament_register_win($p1,$p2,$winner);
 	}
+/*	function tournament_forfeit($who)
+	{
+		if($this->db->)
+	}
+*/
 /*
 	function divide_and_conquer($pairs)
 	{
