@@ -89,17 +89,7 @@ class GenericController
 		$this->add_out(array($p1 => array("old"=>$p1_elo, "new"=>$newelo[0]), 
 			$p2 => array("old"=>$p2_elo,"new"=>$newelo[1])),
 		"elo","OK");
-		if($this->tournament_test_players_should_play($p1,$p2)){
-			$res = $this->tournament_register_win($p1,$p2,$winner);
-			if($res==1)
-				$this->add_out("Tournament game registered, $winner won a match!","msg","OK");
-			if($res==-1){
-				$this->add_out("We have a tournament winner! Three cheers for $winner!","msg","OK");
-				$this->tournament_finish($winner);
-			}
-		} else {
-//			$this->add_out("No tournament game pending.","msg","OK");
-		}
+		$this->tournament_check_and_register_win($p1,$p2,$winner);
 	}
 	// Creates a new tournament if none is going on.
 	function tournament_create($name, $creator) {
@@ -207,6 +197,17 @@ class GenericController
 		return $pairs;
 	}
 
+	function tournament_check_and_register_win($p1,$p2,$winner)
+		if($this->tournament_test_players_should_play($p1,$p2)){
+			$res = $this->tournament_register_win($p1,$p2,$winner);
+			if($res==1)
+				$this->add_out("Tournament game registered, $winner won a match!","msg","OK");
+			if($res==-1){
+				$this->add_out("We have a tournament winner! Three cheers for $winner!","msg","OK");
+				$this->tournament_finish($winner);
+			}
+		}
+
 	function tournament_new_game($tournament_id,$parent_game=null,$player1=null,$player2=null){
 		return $this->db->tournament_new_game($tournament_id,$parent_game,$player1,$player2);
 	}
@@ -261,6 +262,10 @@ class GenericController
 		}
 		return 0;
 	}
+	function tournament_fakewin($p1,$p2){
+		return $this->tournament_check_and_register_win($p1,$p2,$p1);
+	}
+	
 	function tournament_register_win($p1,$p2,$winner) {
 		return $this->db->tournament_register_win($p1,$p2,$winner);
 	}
