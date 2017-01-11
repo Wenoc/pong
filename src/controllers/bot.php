@@ -11,7 +11,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 			"register","sign",
 			"draw","loss","lose","match","game",
 			"stats","list","statistics","matches","top","undo",
-			"admin","aliases","tournament","cup","tour","sudo");
+			"admin","aliases","tournament","cup","tour","sudo","unsign");
 
 	protected function configure() {
         // We don't have to configure a command name in this case
@@ -94,7 +94,9 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				//echo print_r($ctrl->out,true);
 				break;
 
-
+				case "unsign":
+					$this->send($data["channel"],null,"You can check in any time you like but you can never leave.");
+					break;
 				case "stats":
 				case "list":
 				case "statistics":
@@ -172,6 +174,20 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 						case "start":
 							$ctrl->tournament_start($username);
 							$this->send($data["channel"],null,$ctrl->out["msg"]);				
+							break;
+						case "fakewin":
+							if(!isset($msg[2]) || !isset($msg[3]))
+							{
+								$this->send($data["channel"],null,"Usage: cup fakewin <winner> <loser>");
+								return;
+							}
+							if(!$ctrl->db->is_admin(trim(strtolower($username))) &&
+								$ctrl->db->tournament_owner() != trim(strtolower($username))) {
+								$this->send($data["channel"],null,"You are neither an admin nor the owner of the tournament.");
+								return;
+							}
+							$ctrl->tournament_fakewin($msg[2],$msg[3]);
+							$this->send($data["channel"],null,$ctrl->out["msg"]);
 							break;
 						default : 
 							$this->send($data["channel"],null,$this->tournament_help());
