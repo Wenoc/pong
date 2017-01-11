@@ -137,8 +137,9 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				case "tournament":
 				case "cup":
 				case "tour":
+				{
 					if(!isset($msg[1])){
-						$this->send($data["channel"],null,"Usage: game <winner> <loser> (draw)");
+						$this->send($data["channel"],null,send($data["channel"],null,$ctrl->tournament_pretty()));
 						break;
 					}
 					switch (trim(strtolower($msg[1]))) {
@@ -169,6 +170,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 							$this->send($data["channel"],null,$this->tournament_help());
 							break;
 					}
+				}
 			}
 		}
 	}

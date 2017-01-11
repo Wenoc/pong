@@ -334,6 +334,15 @@ class GenericController
 	}
 	function tournament_pretty()
 	{
+		if(!$this->db->tournament_is_started()){
+			if($this->db->tournament_is_initialized()){
+				$this->add_out("No tournament is going on at the moment, but one is waiting for players to sign.\nCurrently signed players:\n","msg","OK");
+				foreach($this->db->tournament_get_players() as $player)
+					$this->add_out($player."\n","msg","OK");
+			}
+			$this->add_out("No tournaments are active at the moment. You can create one if you wish.","msg","OK");
+			return;
+		}
 		$tmp_tournament = $this->db->tournament_get_full_game_list();
 		$tournament = array();
 		foreach($tmp_tournament as $key => $val){ // put the game_id as key for each game in the array.
