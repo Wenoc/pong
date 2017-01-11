@@ -111,9 +111,9 @@ class GenericController
 			$this->add_out("There is already a tournament in progress!","msg","ERROR");
 			return 0;
 		} else {
-	 		$this->add_out("Tournament $name has been created!","msg","OK");
-	 		return $this->db->tournament_create($name,$creator);
-	 	}
+			$this->add_out("Tournament $name has been created!","msg","OK");
+			return $this->db->tournament_create($name,$creator);
+		}
 	}
 	function tournament_finish($winner = 0){
 		return $this->db->tournament_finish($winner);
@@ -130,8 +130,8 @@ class GenericController
 				return 0;
 			}
 		} else {
-				$this->db->tournament_cancel("cancelled by $owner".($reason?", reason: $reason":""));
-				$this->add_out("Tournament cancelled by $owner.","msg","OK");			
+			$this->db->tournament_cancel("cancelled by $owner".($reason?", reason: $reason":""));
+			$this->add_out("Tournament cancelled by $owner.","msg","OK");			
 		}
 	}
 	function tournament_register($name){		
@@ -332,15 +332,51 @@ class GenericController
 		}
 		return $out;
 	}
-	function tournament_pretty(){
-		$tournament = $this->tournament_reverse_engineer($this->db->tournament_get_full_game_list());
-		$this->add_out(print_r($tournament,true),"msg","OK");
-//		print_r($tournament);
-		//return $tournament;
-	}
-	function tournament_reverse_engineer($games)
+	function tournament_pretty()
 	{
-		return $games;
+		$tmp_tournament = $this->db->tournament_get_full_game_list();
+		$tournament = array();
+		foreach($tmp_tournament as $key => $val){ // put the game_id as key for each game in the array.
+			$tournament[$val["game_id"]] = $val;
+		}
+		$tournament = $this->buildTree($tournament); 
+
+		$out = "--------- ".$tmp_tournament[0]["tournament_name"]." ---------\n\n";
+		$out.=$this->printTree($tournament);
+		$this->add_out($out,"msg","OK");
+	}
+
+	function buildTree(array &$elements, $parentId = 0) 
+	{
+		$branch = array();
+
+		foreach ($elements as $element) {
+			if ($element['parent_game'] == $parentId) {
+				$children = $this->buildTree($elements, $element['game_id']);
+				if ($children) {
+					$element['children'] = $children;
+				}
+				$branch[$element['game_id']] = $element;
+				unset($elements[$element['game_id']]);
+			}
+		}
+		return $branch;
+	}
+
+	function printTree($elements, $level=0)
+	{
+		print_r($elements);
+		$str = "";
+		foreach($elements as $element){
+			$str.= str_pad( ($level==0 ? "Final: ":($level==1 ? "Semifinal:":($level== 2 ? "Quarterfinal:":"Game:"))), ($level * 10) + 10, " ", STR_PAD_LEFT)." ";
+			$str.= ($element["player1"] ? $element["player1"] : "<unknown>")." vs ".($element["player2"] ? $element["player2"] : "<unknown>")."\n";
+			if(isset($element["children"])){
+				$str.=$this->printTree($element["children"],$level+1);
+			}
+
+		}
+		$str.="\n";
+		return $str;
 	}
 }
 ?>

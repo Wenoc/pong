@@ -131,6 +131,9 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 					$this->send($data["channel"],null,"You are not an admin, $username.");
 				}
 				break;
+				case "undo":
+					$this->send($data["channel"],null,"Not implemented yet");	
+					break;
 				case "tournament":
 				case "cup":
 				case "tour":
