@@ -349,7 +349,7 @@ class GenericController
 				if(!count($players))
 					$this->add_out("No players have signed.","msg","OK");
 				else foreach($this->db->tournament_get_players() as $player)
-					$this->add_out($player["name"]."\n","msg","OK");
+					$this->add_out($player["name"],"msg","OK");
 				return;
 			}
 			$this->add_out("No tournaments are active at the moment. You can create one if you wish.","msg","OK");
@@ -359,6 +359,12 @@ class GenericController
 		$tournament = array();
 		foreach($tmp_tournament as $key => $val){ // put the game_id as key for each game in the array.
 			$tournament[$val["game_id"]] = $val;
+			if($val["winner"]){
+				if($val["player1"] == $val["winner"])
+					$tmp_tournament[$key]["player2"] = '~'.$tmp_tournament[$key]["player2"].'~';
+				else if($val["player2"] == $val["winner"])
+					$tmp_tournament[$key]["player1"] = '~'.$tmp_tournament[$key]["player1"].'~';
+			}
 		}
 		$tournament = $this->buildTree($tournament); 
 
