@@ -141,7 +141,15 @@ class GenericController
 		else 
 			$this->add_out("Player $name signed up for the tournament!","msg","OK");
 	}
-	function tournament_start(){
+	function tournament_start($user){
+		$real_owner = $this->db->tournament_owner();
+		if(trim(strtolower($user)) != $real_owner &&
+			!$this->db->tournament_owner_inactive() &&
+			!$this->db->is_admin($user)) {
+			$this->add_out("You do not have the priviliges to do that, nor are you the owner of the tournament. The owner is $real_owner.","msg","OK");
+			return 1;
+		}
+
 		if(!$this->db->tournament_is_initialized()){
 			$this->add_out("Tournament has not been created yet.","msg","ERROR");
 			return;
@@ -234,17 +242,17 @@ class GenericController
 */
 	function tournament_test_players_should_play($p1,$p2) {
 		if(!$this->db->tournament_is_started()){
-			$this->add_out("No tournament started.","msg","OK");
+		//	$this->add_out("No tournament started.","msg","OK");
 			return 0;
 		}
 		$tournament_id = $this->db->tournament_get_active_id();
 		$tournament_players = $this->db->tournament_get_players($tournamnent_id);
 		if(!$this->db->tournament_player_has_signed($p1)){
-			$this->add_out("Player $p1 has not signed up for the tournament.");
+		//	$this->add_out("Player $p1 has not signed up for the tournament.");
 			return 0;
 		}
 		if(!$this->db->tournament_player_has_signed($p2)){
-			$this->add_out("Player $p2 has not signed up for the tournament.");
+		//	$this->add_out("Player $p2 has not signed up for the tournament.");
 			return 0;
 		}
 		if($this->db->tournament_game_pending($p1,$p2)){
