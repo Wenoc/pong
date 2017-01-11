@@ -142,16 +142,16 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 						break;
 					}
 					switch (trim(strtolower($msg[1]))) {
-						"cancel":
+						case "cancel":
 							$ctrl->tournament_cancel($username);
 							$this->send($data["channel"],null,$ctrl->out["msg"]);
 							break;
-						"create":
+						case "create":
 							$ctrl->tournament_create(implode(" ", array_slice(explode(" ", $data["text"]), 2)),$username);
 							$this->send($data["channel"],null,$ctrl->out["msg"]);
 							break;
-						"register":
-						"sign":
+						case "register":
+						case "sign":
 							$ctrl->tournament_register($username);
 							$this->send($data["channel"],null,$ctrl->out["msg"]);
 							break;
@@ -159,10 +159,10 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 //							$ctrl->tournament_forfeit($username);
 //							$this->send($data["channel"],null,$ctrl->out["msg"]);
 //							break;
-						"stats":
-						"top":
-						"show":
-						"status":
+						case "stats":
+						case "top":
+						case "show":
+						case "status":
 							$this->send($data["channel"],null,$ctrl->tournament_pretty());
 							break;					
 						default : 
