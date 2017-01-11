@@ -337,7 +337,10 @@ class GenericController
 		if(!$this->db->tournament_is_started()){
 			if($this->db->tournament_is_initialized()){
 				$this->add_out("No tournament is going on at the moment, but one is waiting for players to sign.\nCurrently signed players:\n","msg","OK");
-				foreach($this->db->tournament_get_players() as $player)
+				$players = $this->db->tournament_get_players();
+				if(!count($players))
+					$this->add_out("No players have signed.","msg","OK");
+				else foreach($this->db->tournament_get_players() as $player)
 					$this->add_out($player."\n","msg","OK");
 			}
 			$this->add_out("No tournaments are active at the moment. You can create one if you wish.","msg","OK");
