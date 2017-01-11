@@ -341,7 +341,8 @@ class GenericController
 				if(!count($players))
 					$this->add_out("No players have signed.","msg","OK");
 				else foreach($this->db->tournament_get_players() as $player)
-					$this->add_out($player."\n","msg","OK");
+					$this->add_out($player["name"]."\n","msg","OK");
+				return;
 			}
 			$this->add_out("No tournaments are active at the moment. You can create one if you wish.","msg","OK");
 			return;
