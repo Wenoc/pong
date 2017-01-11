@@ -10,8 +10,8 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 	public $commands = array("help","challenge","accept","refuse","decline","cancel",
 			"register","sign",
 			"draw","loss","lose","match","game",
-			"stats","list","statistics","matches","top",
-			"admin","aliases");
+			"stats","list","statistics","matches","top","undo"
+			"admin","aliases","tournament","cup","tour");
 
 	protected function configure() {
         // We don't have to configure a command name in this case
