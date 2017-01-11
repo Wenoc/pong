@@ -166,7 +166,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 						case "top":
 						case "show":
 						case "status":
-							$ctrl->tournament_pretty()
+							$ctrl->tournament_pretty();
 							$this->send($data["channel"],null,$ctrl->out["msg"]);
 							break;
 						case "start":
