@@ -91,7 +91,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				} else {
 					$ctrl->insert_new_game($msg[1],$msg[2],$msg[1]);
 				}
-				echo print_r($ctrl->out,true);
+				//echo print_r($ctrl->out,true);
 				break;
 
 
@@ -103,7 +103,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				$n = 0;
 				if(isset($msg[1]))
 					$n = (int)$msg[1];
-				echo print_r($ctrl->pretty_score(0),true);
+				//echo print_r($ctrl->pretty_score(0),true);
 				$out= "```".$ctrl->pretty_score($n)."```";
 				$this->send($data["channel"],null,$out);
 				break;

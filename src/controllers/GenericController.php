@@ -199,7 +199,7 @@ class GenericController
 		{
 			$pairs = array_chunk($pairs,2);
 		}
-		$this->add_out(print_r($pairs,true),"msg","OK");
+		//$this->add_out(print_r($pairs,true),"msg","OK");
 //		$final_id = $this->tournament_new_game($tournament_id,0,null,null); 
 		$this->tournament_game_iter($pairs,0,$tournament_id);
 		$this->db->tournament_start($tournament_id);
@@ -386,7 +386,7 @@ class GenericController
 
 	function printTree($elements, $level=0)
 	{
-		print_r($elements);
+		//print_r($elements);
 		$str = "";
 		foreach($elements as $element){
 			$str.= str_pad( ($level==0 ? "Final: ":($level==1 ? "Semifinal:":($level== 2 ? "Quarterfinal:":"Game:"))), ($level * 10) + 10, " ", STR_PAD_LEFT)." ";
