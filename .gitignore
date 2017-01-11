@@ -1,3 +1,4 @@
 /vendor
 /src/inc/db.inc
 /src/controllers/insert_db_info.php
+/src/controllers/test_tournament.php

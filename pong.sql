@@ -83,6 +83,81 @@ CREATE TABLE games (
 ALTER TABLE games OWNER TO webuser;
 
 --
+-- Name: tournament_games_id_seq; Type: SEQUENCE; Schema: public; Owner: webuser
+--
+
+CREATE SEQUENCE tournament_games_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE tournament_games_id_seq OWNER TO webuser;
+
+--
+-- Name: tournament_games; Type: TABLE; Schema: public; Owner: webuser
+--
+
+CREATE TABLE tournament_games (
+    game_id integer DEFAULT nextval('tournament_games_id_seq'::regclass) NOT NULL,
+    tournament_id integer NOT NULL,
+    player1 character varying NOT NULL,
+    player2 character varying NOT NULL,
+    winner character varying,
+    played_when timestamp with time zone DEFAULT now(),
+    parent_game integer
+);
+
+
+ALTER TABLE tournament_games OWNER TO webuser;
+
+--
+-- Name: tournament_id_seq; Type: SEQUENCE; Schema: public; Owner: webuser
+--
+
+CREATE SEQUENCE tournament_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE tournament_id_seq OWNER TO webuser;
+
+--
+-- Name: tournament_players; Type: TABLE; Schema: public; Owner: webuser
+--
+
+CREATE TABLE tournament_players (
+    tournament_id integer NOT NULL,
+    name character varying NOT NULL
+);
+
+
+ALTER TABLE tournament_players OWNER TO webuser;
+
+--
+-- Name: tournaments; Type: TABLE; Schema: public; Owner: webuser
+--
+
+CREATE TABLE tournaments (
+    tournament_name character varying,
+    tournament_id integer DEFAULT nextval('tournament_id_seq'::regclass) NOT NULL,
+    initialized timestamp with time zone DEFAULT now() NOT NULL,
+    started timestamp with time zone,
+    finished timestamp with time zone,
+    winner character varying,
+    creator character varying NOT NULL,
+    active boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE tournaments OWNER TO webuser;
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: webuser
 --
 
@@ -111,10 +186,41 @@ ALTER TABLE ONLY users
 
 
 --
+-- Name: tournament_games tournament_games_pkey; Type: CONSTRAINT; Schema: public; Owner: webuser
+--
+
+ALTER TABLE ONLY tournament_games
+    ADD CONSTRAINT tournament_games_pkey PRIMARY KEY (game_id);
+
+
+--
+-- Name: tournament_players tournament_players_pkey; Type: CONSTRAINT; Schema: public; Owner: webuser
+--
+
+ALTER TABLE ONLY tournament_players
+    ADD CONSTRAINT tournament_players_pkey PRIMARY KEY (tournament_id, name);
+
+
+--
+-- Name: tournaments tournaments_pkey; Type: CONSTRAINT; Schema: public; Owner: webuser
+--
+
+ALTER TABLE ONLY tournaments
+    ADD CONSTRAINT tournaments_pkey PRIMARY KEY (tournament_id);
+
+
+--
 -- Name: fki_challenger_constraint; Type: INDEX; Schema: public; Owner: webuser
 --
 
 CREATE INDEX fki_challenger_constraint ON challenges USING btree (challenger);
+
+
+--
+-- Name: tournaments_active_idx; Type: INDEX; Schema: public; Owner: webuser
+--
+
+CREATE UNIQUE INDEX tournaments_active_idx ON tournaments USING btree (active) WHERE (active = true);
 
 
 --
@@ -131,6 +237,14 @@ ALTER TABLE ONLY challenges
 
 ALTER TABLE ONLY challenges
     ADD CONSTRAINT defender_constraint FOREIGN KEY (challenger) REFERENCES users(name);
+
+
+--
+-- Name: tournament_players name_exists; Type: FK CONSTRAINT; Schema: public; Owner: webuser
+--
+
+ALTER TABLE ONLY tournament_players
+    ADD CONSTRAINT name_exists FOREIGN KEY (name) REFERENCES users(name);
 
 
 --

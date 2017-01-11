@@ -131,6 +131,44 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 					$this->send($data["channel"],null,"You are not an admin, $username.");
 				}
 				break;
+				case "undo":
+					$this->send($data["channel"],null,"Not implemented yet");	
+					break;
+				case "tournament":
+				case "cup":
+				case "tour":
+					if(!isset($msg[1])){
+						$this->send($data["channel"],null,"Usage: game <winner> <loser> (draw)");
+						break;
+					}
+					switch (trim(strtolower($msg[1]))) {
+						"cancel":
+							$ctrl->tournament_cancel($username);
+							$this->send($data["channel"],null,$ctrl->out["msg"]);
+							break;
+						"create":
+							$ctrl->tournament_create(implode(" ", array_slice(explode(" ", $data["text"]), 2)),$username);
+							$this->send($data["channel"],null,$ctrl->out["msg"]);
+							break;
+						"register":
+						"sign":
+							$ctrl->tournament_register($username);
+							$this->send($data["channel"],null,$ctrl->out["msg"]);
+							break;
+//						"forfeit":
+//							$ctrl->tournament_forfeit($username);
+//							$this->send($data["channel"],null,$ctrl->out["msg"]);
+//							break;
+						"stats":
+						"top":
+						"show":
+						"status":
+							$this->send($data["channel"],null,$ctrl->tournament_pretty());
+							break;					
+						default : 
+							$this->send($data["channel"],null,$this->tournament_help());
+							break;
+					}
 			}
 		}
 	}
@@ -144,14 +182,45 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 		return  '```'.
 		"Commands:\n".
 		"---------\n".
-		" register                        - register as a player\n".
-		" match <winner> <loser> ('draw') - record a game\n".
-		" loss <player>                   - records a loss against <player>\n".
-		" draw <player>                   - records a draw against <player>\n".		
-		" stats (N)                       - prints vanity report\n".
-		" aliases                         - prints all command aliases\n".
 		" admin                           - admin commands\n".		
+		" aliases                         - prints all command aliases\n".
+		" draw <player>                   - records a draw against <player>\n".		
+		" loss <player>                   - records a loss against <player>\n".
+		" match <winner> <loser> ('draw') - record a game\n".
+		" register                        - register as a player\n".
+		" stats (N)                       - prints vanity report\n".
+		" undo                            - undoes the latest recorded loss (winner or loser can do this)\n".
+		"\n".
+		" tournament <cmd>                - Tournament commands.\n".
 		'```'; 
+	}
+	protected function tournament_help(){
+		return '```'.
+		"    Tournaments are cup-format knockout games. Players can create and sign up for tournaments.\n".
+		"    The creator of the tournament can decide to start it, after which no signups are possible.\n".
+		"    Only one tournament can be active at one time, although the old tournaments are still accessible\n".
+		"    for gloating purposes.\n".
+		"\n".
+		"    Players are paired up into matches according to elo-ranking in such a way that equal competitors\n".
+		"    face off later in the tournament and worse players are picked off early. If the number of\n".
+		"    participants is uneven, the top player skips a match. In case the number of participants is not\n".
+		"    an factor of 2 (2,4,8,16,32..) some tomfoolery happens to make it as fair as possible.\n".
+		"\n".
+		"    Games are registered as normal. If you are scheduled to play Slartibartfast, and Slartibartfast\n".
+		"    records a loss against you, it counts for the tournament as well as the normal ranking.\n".
+		"    You have to be a registered player to sign up for a tournament.\n".
+		"\n".
+		"    Tournament commands are prefixed by 'tournament' or 'tour' or 'cup', and are as follows:\n".
+		"    cancel             - Cancels the tournament. Only the creator can cancel a tournament,\n".
+		"                         Except if the tournament was created more than a week ago.\n".
+		"    create <name>      - Creates a new tournament. Only one can be active.\n".
+//		"    forfeit            - Winners do not forfeit.\n".
+		"    help               - Prints this.\n".
+		"    register|sign      - Signs you up for the tournament.\n".
+		"    start              - Starts the tournament. The roster will be created.\n".
+		"                         No signpus after this. Only the creator can start the tournament.\n".
+		"    stats|status       - Prints out the pretty cup tree.\n".
+		"```";
 	}
 }
 
