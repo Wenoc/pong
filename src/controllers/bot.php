@@ -11,7 +11,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 			"register","sign",
 			"draw","loss","lose","match","game",
 			"stats","list","statistics","matches","top","undo",
-			"admin","aliases","tournament","cup","tour");
+			"admin","aliases","tournament","cup","tour","sudo");
 
 	protected function configure() {
         // We don't have to configure a command name in this case
@@ -108,6 +108,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				$this->send($data["channel"],null,$out);
 				break;
 
+				case "sudo":
 				case "admin":
 				if($ctrl->db->is_admin(trim(strtolower($username)))){
 					if(!isset($msg[1]) || !isset($msg[2])){
@@ -165,8 +166,13 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 						case "top":
 						case "show":
 						case "status":
-							$this->send($data["channel"],null,$ctrl->tournament_pretty());
-							break;					
+							$ctrl->tournament_pretty();
+							$this->send($data["channel"],null,$ctrl->out["msg"]);
+							break;
+						case "start":
+							$ctrl->tournament_start($username);
+							$this->send($data["channel"],null,$ctrl->out["msg"]);				
+							break;
 						default : 
 							$this->send($data["channel"],null,$this->tournament_help());
 							break;
@@ -207,7 +213,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 		"    Players are paired up into matches according to elo-ranking in such a way that equal competitors\n".
 		"    face off later in the tournament and worse players are picked off early. If the number of\n".
 		"    participants is uneven, the top player skips a match. In case the number of participants is not\n".
-		"    an factor of 2 (2,4,8,16,32..) some tomfoolery happens to make it as fair as possible.\n".
+		"    a factor of 2 (2,4,8,16,32..) some tomfoolery happens to make it as fair as possible.\n".
 		"\n".
 		"    Games are registered as normal. If you are scheduled to play Slartibartfast, and Slartibartfast\n".
 		"    records a loss against you, it counts for the tournament as well as the normal ranking.\n".
