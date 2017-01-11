@@ -197,7 +197,7 @@ class GenericController
 		return $pairs;
 	}
 
-	function tournament_check_and_register_win($p1,$p2,$winner)
+	function tournament_check_and_register_win($p1,$p2,$winner) {
 		if($this->tournament_test_players_should_play($p1,$p2)){
 			$res = $this->tournament_register_win($p1,$p2,$winner);
 			if($res==1)
