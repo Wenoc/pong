@@ -207,7 +207,7 @@ class GenericController
 				$this->tournament_finish($winner);
 			}
 		}
-
+	}
 	function tournament_new_game($tournament_id,$parent_game=null,$player1=null,$player2=null){
 		return $this->db->tournament_new_game($tournament_id,$parent_game,$player1,$player2);
 	}
@@ -265,7 +265,7 @@ class GenericController
 	function tournament_fakewin($p1,$p2){
 		return $this->tournament_check_and_register_win($p1,$p2,$p1);
 	}
-	
+
 	function tournament_register_win($p1,$p2,$winner) {
 		return $this->db->tournament_register_win($p1,$p2,$winner);
 	}
