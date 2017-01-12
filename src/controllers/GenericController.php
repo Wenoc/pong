@@ -371,8 +371,9 @@ class GenericController
 					$tmp_tournament[$key]["player1"] = '~'.$tmp_tournament[$key]["player1"].'~';
 			}
 		}
-		$tournament = $this->buildTree($tournament); 
 
+		$tournament = $this->buildTree($tournament); 
+		//$this->add_out(print_r($tournament,true),"msg","OK");
 		$out = "--------- ".$tmp_tournament[0]["tournament_name"]." ---------\n\n";
 		$out.=$this->printTree($tournament);
 		$this->add_out($out,"msg","OK");
@@ -400,7 +401,12 @@ class GenericController
 		//print_r($elements);
 		$str = "";
 		foreach($elements as $element){
-			$str.= str_pad( ($level==0 ? "Final: ":($level==1 ? "Semifinal:":($level== 2 ? "Quarterfinal:":"Game:"))), ($level * 10) + 10, " ", STR_PAD_LEFT)." ";
+			$extra = "";
+			if(isset($element["winner"]) && $element["winner"])
+				$extra="~";
+			else if($element["player1"] && $element["player2"])
+				$extra="*";
+			$str.= str_pad( $extra.($level==0 ? "Final: ":($level==1 ? "Semifinal:":($level== 2 ? "Quarterfinal:":"Game:"))).$extra, ($level * 10) + 10, " ", STR_PAD_LEFT)." ";
 			$str.= ($element["player1"] ? $element["player1"] : "<unknown>")." vs ".($element["player2"] ? $element["player2"] : "<unknown>")."\n";
 			if(isset($element["children"])){
 				$str.=$this->printTree($element["children"],$level+1);
