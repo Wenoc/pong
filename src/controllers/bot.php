@@ -194,10 +194,9 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 							$this->send($data["channel"],null,$ctrl->out["msg"]);
 							break;
 						case "log":
-							{
 								$ctrl->tournament_log_pretty();
 								$this->send($data["channel"],null,$ctrl->out["msg"]);
-							}
+								break;
 						default : 
 							$this->send($data["channel"],null,$this->tournament_help());
 							break;
