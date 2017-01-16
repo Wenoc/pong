@@ -11,7 +11,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 			"register","sign",
 			"draw","loss","lose","match","game",
 			"stats","list","statistics","matches","top","undo",
-			"admin","aliases","tournament","cup","tour","sudo","unsign");
+			"admin","aliases","tournament","cup","tour","sudo","unsign","tournaments");
 
 	protected function configure() {
         // We don't have to configure a command name in this case
@@ -137,6 +137,10 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				case "undo":
 					$this->send($data["channel"],null,"Not implemented yet");	
 					break;
+				case "tournaments":
+					$ctrl->tournament_log_pretty();
+					$this->send($data["channel"],null,$ctrl->out["msg"]);
+					break;
 				case "tournament":
 				case "cup":
 				case "tour":
@@ -189,6 +193,11 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 							$ctrl->tournament_fakewin($msg[2],$msg[3]);
 							$this->send($data["channel"],null,$ctrl->out["msg"]);
 							break;
+						case "log":
+							{
+								$ctrl->tournament_log_pretty();
+								$this->send($data["channel"],null,$ctrl->out["msg"]);
+							}
 						default : 
 							$this->send($data["channel"],null,$this->tournament_help());
 							break;

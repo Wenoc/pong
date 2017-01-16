@@ -134,8 +134,10 @@ class DB
      **************/
     // tournaments
     public function tournaments_get()
-    {
-        return $this->sql_result_array("SELECT * FROM tournaments");
+    {   
+        $query = "SELECT tournament_name,date(started) started,date(finished) finished,winner FROM tournaments ".
+            " ORDER BY initialized ASC";
+        return $this->sql_result_array($query);
     }
     public function tournament_owner_inactive()
     {
@@ -248,12 +250,11 @@ class DB
     public function fix($str){
         return trim(strtolower(pg_escape_string($str)));
     }
-/* Don't even think about it
+/* Don't even think about it */
     public function CLEAR_TOURNAMENTS(){
         $query = "DELETE FROM tournament_games;DELETE FROM tournament_players;DELETE FROM tournaments;";
         $this->sql($query);
     }
-*/
 }
 
 ?>
