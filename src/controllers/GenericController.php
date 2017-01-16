@@ -484,10 +484,10 @@ class GenericController
 		$tournaments = $this->db->tournaments_get();
 		$out = "```";
 		foreach($tournaments as $t){
-			$out.=$t["tournament_name"]." Started: ".$t["started"]."  Finished: ".$t["finished"]." Winner: ".$t["winner"]."\n";
+			$out.=$t["tournament_name"]." Started: ".$t["started"]."  Finished: ".($t["finished"] ? $t["finished"] : "Running. "." Winner: ".$t["winner"]."\n";
 		}
 		$out.="```";
-		$this->add_out(print_r($tournaments,true),"msg","OK");
+//		$this->add_out(print_r($tournaments,true),"msg","OK");
 		$this->add_out($out,"msg","OK");
 	}
 }
