@@ -248,6 +248,12 @@ class DB
     public function fix($str){
         return trim(strtolower(pg_escape_string($str)));
     }
+/* Don't even think about it
+    public function CLEAR_TOURNAMENTS(){
+        $query = "DELETE FROM tournament_games;DELETE FROM tournament_players;DELETE FROM tournaments;";
+        $this->sql($query);
+    }
+*/
 }
 
 ?>

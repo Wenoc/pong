@@ -149,14 +149,36 @@ class GenericController
 			return;
 		}
 		$tournament_id = $this->db->tournament_get_active_id();
-		$players = $this->db->tournament_get_players($tournament_id);
+		$ret_players = $this->db->tournament_get_players($tournament_id);
 
-		if(count($players) < 4){
+		if(count($ret_players) < 4){
 			$this->add_out("Tournament needs at least four players. Otherwise you would have no misery or tears to suckle and nourish yourself on.","msg","ERROR");
 			return;
 		}
+		// TRYING NEW ALGORITHM FROM HERE.
+//		$players = array();
+		$players = $ret_players;
+		$pairs = array();
+//		foreach($ret_players as $player){
+//			$players[] = $player["name"];
+//		}
+		$this->add_out(print_r($players,true),"msg","OK");
+		$head_honcho = null;
+		if(count($players)%2){ // If the amount of participants is uneven, we remove the top player who can skip first round. 
+			$head_honcho = $players[0];
+			unset($players[0]);
+		}
+		$players = $this->playershuffle($players);
+		if($head_honcho)
+			$players[] = $head_honcho;
+		$tournament = $this->split_and_pair($players);
+		$this->add_out(print_r($tournament,true),"msg","OK");
+		$this->tournament_game_iter($tournament,0,$tournament_id);
+		$this->db->tournament_start($tournament_id);
+	}
 
 
+/* COMMENTING FOR NOW, TRYING SOMETHING ELSE
 		$pairs = array();		
 		$head_honcho = null;
 		if(count($players)%2){ // If the amount of participants is uneven, we remove the top player who can skip first round. 
@@ -191,12 +213,15 @@ class GenericController
 		}
 		//$this->add_out(print_r($pairs,true),"msg","OK");
 //		$final_id = $this->tournament_new_game($tournament_id,0,null,null); 
+//		$this->tournament_game_iter(array_chunk($pairs,ceil(count($pairs)/2))[0],0,$tournament_id);
+//		$this->tournament_game_iter(array_chunk($pairs,ceil(count($pairs)/2))[1],0,$tournament_id);
+		$this->add_out(print_r($pairs,true),"msg","OK");
 		$this->tournament_game_iter($pairs,0,$tournament_id);
 		$this->db->tournament_start($tournament_id);
 		$this->add_out("Tournament has started!","msg","OK");			
 		return $pairs;
 	}
-
+*/
 	function tournament_check_and_register_win($p1,$p2,$winner) {
 		if($this->tournament_test_players_should_play($p1,$p2)){
 			$res = $this->tournament_register_win($p1,$p2,$winner);
@@ -212,6 +237,26 @@ class GenericController
 		return $this->db->tournament_new_game($tournament_id,$parent_game,$player1,$player2);
 	}
 
+	function tournament_game_iter($pairs,$parent,$tournament_id){
+		if(isset($pairs[0]["name"]) && isset($pairs[1]["name"])){
+			$this->tournament_new_game($tournament_id,$parent,$pairs[0]["name"],$pairs[1]["name"]);
+		} else {
+			if(count($pairs) == 1){
+				$this->tournament_game_iter($pairs[0],$parent,$tournament_id);
+			} else {
+				if(isset($pairs[0]["name"])){
+					$parent = $this->tournament_new_game($tournament_id, $parent, $pairs[0]["name"]);
+					$this->tournament_game_iter($pairs[1],$parent,$tournament_id);
+				} else {
+					$parent = $this->tournament_new_game($tournament_id,$parent);
+					foreach($pairs as $match){
+						$this->tournament_game_iter($match,$parent,$tournament_id);
+					}
+				}
+			}
+		}
+	}
+/* backup
 	function tournament_game_iter($pairs,$parent,$tournament_id){
 		//echo "Inserting : ".print_r($pairs,true)."\n";
 		if(isset($pairs[0]["name"]) && isset($pairs[1]["name"])){
@@ -232,15 +277,34 @@ class GenericController
 			}
 		}
 	}
+	*/
 
-/*	function tournament_game_iter($pairs, $parent, $tournament_id)
+	function split_and_pair($players)
 	{
-		if(!isset($pairs[0]["name"]) && isset($pairs[1])) {
-			$this->tournament_new_game($tournament_id,$this->tournament_game_iter($pairs,$parent,$tournament_id));
-			$this->
+		$keys = array_keys($players);
+		if(count($players) == 2)
+			return $players;
+		if(count($players) == 3){
+			return array($players[$keys[0]],array($players[$keys[1]],$players[$keys[2]]));
 		}
+		$split = array_chunk($players,ceil(count($players)/2));
+		return array($this->split_and_pair($split[0]),$this->split_and_pair($split[1]));
 	}
-*/
+
+	function playershuffle($players)
+	{
+		$shuffled_players = array();
+		while(count($players)) {
+			$middleKey = array_keys($players)[ceil(count($players)/2)];
+			$topKey = array_keys($players)[0];
+			$shuffled_players[] = $players[$topKey];
+			$shuffled_players[] = $players[$middleKey];
+			unset($players[$topKey]);
+			unset($players[$middleKey]);
+		}
+		return $shuffled_players;
+	}
+
 	function tournament_test_players_should_play($p1,$p2) {
 		if(!$this->db->tournament_is_started()){
 		//	$this->add_out("No tournament started.","msg","OK");
