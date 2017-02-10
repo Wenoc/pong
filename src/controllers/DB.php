@@ -127,7 +127,12 @@ class DB
             echo "$name games:".print_r($total,true)." wins:$wins losses:$losses\n";
         }
     }
-
+    function query_games($p1,$p2)
+    {
+        $p1 = trim(pg_escape_string($p1));
+        $p2 = trim(pg_escape_string($p2));
+        return $this->sql_result_array("SELECT * from games WHERE (player1=='$p1' AND player2=='$p2') OR (player1=='$p2' AND player2=='$p1')");
+    }
 
     /**************
      * Tournaments
