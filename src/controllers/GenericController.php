@@ -91,6 +91,15 @@ class GenericController
 		"elo","OK");
 		$this->tournament_check_and_register_win($p1,$p2,$winner);
 	}
+
+
+
+
+
+
+	/***************
+	 * Tournaments *
+	 ***************/
 	// Creates a new tournament if none is going on.
 	function tournament_create($name, $creator) {
 		if(!$this->db->player_exists($creator)){
@@ -155,14 +164,9 @@ class GenericController
 			$this->add_out("Tournament needs at least four players. Otherwise you would have no misery or tears to suckle and nourish yourself on.","msg","ERROR");
 			return;
 		}
-		// TRYING NEW ALGORITHM FROM HERE.
-//		$players = array();
 		$players = $ret_players;
 		$pairs = array();
-//		foreach($ret_players as $player){
-//			$players[] = $player["name"];
-//		}
-		$this->add_out(print_r($players,true),"msg","OK");
+		//$this->add_out(print_r($players,true),"msg","OK");
 		$head_honcho = null;
 		if(count($players)%2){ // If the amount of participants is uneven, we remove the top player who can skip first round. 
 			$head_honcho = $players[0];
@@ -177,51 +181,6 @@ class GenericController
 		$this->db->tournament_start($tournament_id);
 	}
 
-
-/* COMMENTING FOR NOW, TRYING SOMETHING ELSE
-		$pairs = array();		
-		$head_honcho = null;
-		if(count($players)%2){ // If the amount of participants is uneven, we remove the top player who can skip first round. 
-//			echo "WE HAVE A HEAD HONCHO\n";
-			$head_honcho = $players[0];
-//			$pairs[] = array($players[0],null);
-			unset($players[0]);
-		}
-		$players = array_reverse($players); // This is because if the amount of players isn't a factor of 2^N, the last group will be the smallest
-											// and the worst players would get to skip a tier. Doing it reversed means the best players will get to skip.
-		while(count($players)){
-			$middleElem = ceil(count($players)/2);
-			$keys = array_keys($players);
-			$middleKey = $keys[$middleElem];
-			$topKey = $keys[0];
-			$pairs[] = array($players[$topKey],$players[$middleKey]);
-			unset($players[$topKey]);
-			unset($players[$middleKey]);
-		}
-		
-//		echo "BEFORE head_honcho:".$head_honcho."\n";
-//		echo print_r($pairs,true);
-//		$pairs = $array_chunk($pairs,2);
-		if($head_honcho){
-			$spot = ceil(count($pairs)/2)-1;
-			$key = array_keys($pairs)[$spot];
-			$pairs[$key] = array($head_honcho,$pairs[$key]);
-		}
-		while(count($pairs) > 2)
-		{
-			$pairs = array_chunk($pairs,2);
-		}
-		//$this->add_out(print_r($pairs,true),"msg","OK");
-//		$final_id = $this->tournament_new_game($tournament_id,0,null,null); 
-//		$this->tournament_game_iter(array_chunk($pairs,ceil(count($pairs)/2))[0],0,$tournament_id);
-//		$this->tournament_game_iter(array_chunk($pairs,ceil(count($pairs)/2))[1],0,$tournament_id);
-		$this->add_out(print_r($pairs,true),"msg","OK");
-		$this->tournament_game_iter($pairs,0,$tournament_id);
-		$this->db->tournament_start($tournament_id);
-		$this->add_out("Tournament has started!","msg","OK");			
-		return $pairs;
-	}
-*/
 	function tournament_check_and_register_win($p1,$p2,$winner) {
 		if($this->tournament_test_players_should_play($p1,$p2)){
 			$res = $this->tournament_register_win($p1,$p2,$winner);
@@ -256,28 +215,6 @@ class GenericController
 			}
 		}
 	}
-/* backup
-	function tournament_game_iter($pairs,$parent,$tournament_id){
-		//echo "Inserting : ".print_r($pairs,true)."\n";
-		if(isset($pairs[0]["name"]) && isset($pairs[1]["name"])){
-			$this->tournament_new_game($tournament_id,$parent,$pairs[0]["name"],$pairs[1]["name"]);
-		} else {
-			if(count($pairs) == 1){
-				$this->tournament_game_iter($pairs[0],$parent,$tournament_id);
-			} else {
-				if(isset($pairs[0]["name"])){
-					$parent = $this->tournament_new_game($tournament_id, $parent, $pairs[0]["name"]);
-					$this->tournament_game_iter($pairs[1],$parent,$tournament_id);
-				} else {
-					$parent = $this->tournament_new_game($tournament_id,$parent);
-					foreach($pairs as $match){
-						$this->tournament_game_iter($match,$parent,$tournament_id);
-					}
-				}
-			}
-		}
-	}
-	*/
 
 	function split_and_pair($players)
 	{
@@ -338,18 +275,15 @@ class GenericController
 		if($this->db->)
 	}
 */
-/*
-	function divide_and_conquer($pairs)
-	{
-			if(count($pairs)<3)
-			return $pairs;
-		if(count($pairs) == 3){
-			$keys = array_keys($pairs);
-			return array(array($pairs[$keys[1]],$pairs[$keys[2]]),$pairs[$keys[0]]);
-		}
-		return array_chunk($pairs,2);
-	}
-*/
+
+
+
+
+
+
+	/******************
+	 * Helper functions
+	 ******************/
 	// Calculates new ELO rank
 	function calc_elo($p1,$p2,$winner)
 	{
@@ -380,6 +314,10 @@ class GenericController
 		} 
 		return array($r1,$r2);
 	}
+	function query_games($p1,$p2)
+	{
+		$games = $this->db->query_games($p1,$p2);
+	}
 
 
 	/******************/
@@ -391,7 +329,7 @@ class GenericController
 		$str = "";
 		foreach($this->out["elo"] as $player => $arr){
 			$diff = round($arr["new"]-$arr["old"],1,PHP_ROUND_HALF_UP);
-			$str.= $player . ": ".round($arr["new"],0,PHP_ROUND_HALF_UP)."(".($diff > 0 ? "+" : "").(string)$diff.")  ";
+			$str.= "_".$player . ": ".round($arr["new"],0,PHP_ROUND_HALF_UP)."(".($diff > 0 ? "+" : "").(string)$diff.")  ";
 		}
 		return $str;
 	}
@@ -400,7 +338,7 @@ class GenericController
 		$out = "Scoreboard".($n?" ($n)":"")."\n----------------------------------\n";
 		$out.= "Player      Elo  Games Wins Losses\n";
 		foreach($arr as $player){
-			$out.=str_pad($player["name"], 10).
+			$out.=str_pad("_".$player["name"], 10).
 			str_pad((string)$player["elo"],5," ",STR_PAD_LEFT).
 			str_pad((string)$player["games"],6," ",STR_PAD_LEFT).
 			str_pad((string)$player["wins"],6," ",STR_PAD_LEFT).
@@ -418,7 +356,7 @@ class GenericController
 				if(!count($players))
 					$this->add_out("No players have signed.","msg","OK");
 				else foreach($this->db->tournament_get_players() as $player)
-					$this->add_out($player["name"],"msg","OK");
+					$this->add_out("_".$player["name"],"msg","OK");
 				return;
 			}
 			$this->add_out("No tournaments are active at the moment. You can create one if you wish.","msg","OK");
@@ -471,7 +409,7 @@ class GenericController
 			else if($element["player1"] && $element["player2"])
 				$extra="*";
 			$str.= str_pad( $extra.($level==0 ? "Final: ":($level==1 ? "Semifinal:":($level== 2 ? "Quarterfinal:":"Game:"))).$extra, ($level * 10) + 10, " ", STR_PAD_LEFT)." ";
-			$str.= ($element["player1"] ? $element["player1"] : "<unknown>")." vs ".($element["player2"] ? $element["player2"] : "<unknown>")."\n";
+			$str.= ($element["player1"] ? "_".$element["player1"] : "<unknown>")." vs ".($element["player2"] ? "_".$element["player2"] : "<unknown>")."\n";
 			if(isset($element["children"])){
 				$str.=$this->printTree($element["children"],$level+1);
 			}
@@ -489,6 +427,10 @@ class GenericController
 		$out.="```";
 //		$this->add_out(print_r($tournaments,true),"msg","OK");
 		$this->add_out($out,"msg","OK");
+	}
+	function query_games_pretty($p1,$p2){
+		$games = $this->query_games($p1, $p2);
+		return print_r($games,true);
 	}
 }
 ?>

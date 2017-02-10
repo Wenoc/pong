@@ -168,6 +168,8 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 //							$ctrl->tournament_forfeit($username);
 //							$this->send($data["channel"],null,$ctrl->out["msg"]);
 //							break;
+						case "games" :
+							$ctrl->query_games_pretty($username,$args[1]);
 						case "stats":
 						case "top":
 						case "show":
