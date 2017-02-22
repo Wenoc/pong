@@ -11,7 +11,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 			"register","sign",
 			"draw","loss","lose","match","game",
 			"stats","list","statistics","matches","top","undo",
-			"admin","aliases","tournament","cup","tour","sudo","unsign","tournaments");
+			"admin","aliases","tournament","cup","tour","sudo","unsign","tournaments","games");
 
 	protected function configure() {
         // We don't have to configure a command name in this case
@@ -75,6 +75,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				$this->send($data["channel"],null,$ctrl->out["msg"]." ".$ctrl->pretty_elo());				
 				break;
 
+/* Redundant. Everyone uses "loss".
 				case "match":
 				case "game":
 				if(!isset($msg[1]) || !isset($msg[2]) || (isset($msg[3]) && $msg[3]!="draw")){
@@ -93,7 +94,10 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				}
 				//echo print_r($ctrl->out,true);
 				break;
-
+*/
+				case "games":
+					$this->send($data["channel"],null,$ctrl->pretty_games($username,(isset($msg[1])?$msg[1]:null)));
+					break;
 				case "unsign":
 					$this->send($data["channel"],null,"You can check in any time you like but you can never leave.");
 					break;

@@ -314,11 +314,6 @@ class GenericController
 		} 
 		return array($r1,$r2);
 	}
-	function query_games($p1,$p2)
-	{
-		$games = $this->db->query_games($p1,$p2);
-	}
-
 
 	/******************/
 	/* Visual outputs */
@@ -347,6 +342,12 @@ class GenericController
 		}
 		return $out;
 	}
+	function pretty_games($p1,$p2=null)
+	{
+		$games = $this->db->query_games($p1,$p2);
+		return print_r($games,true);
+	}
+
 	function tournament_pretty()
 	{
 		if(!$this->db->tournament_is_started()){
