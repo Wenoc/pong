@@ -11,7 +11,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 			"register","sign",
 			"draw","loss","lose","match","game",
 			"stats","list","statistics","matches","top","undo",
-			"admin","aliases","tournament","cup","tour","sudo","unsign","tournaments");
+			"admin","aliases","tournament","cup","tour","sudo","unsign","tournaments","whoami");
 
 	protected function configure() {
         // We don't have to configure a command name in this case
@@ -199,6 +199,10 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 								$ctrl->tournament_log_pretty();
 								$this->send($data["channel"],null,$ctrl->out["msg"]);
 								break;
+						case "whoami" : 
+								$this->send($data["channel"],null,trim(strtolower($username)));
+								break;
+						     
 						default : 
 							$this->send($data["channel"],null,$this->tournament_help());
 							break;
