@@ -75,7 +75,6 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				$this->send($data["channel"],null,$ctrl->out["msg"]." ".$ctrl->pretty_elo());				
 				break;
 
-/* Redundant. Everyone uses "loss".
 				case "match":
 				case "game":
 				if(!isset($msg[1]) || !isset($msg[2]) || (isset($msg[3]) && $msg[3]!="draw")){
@@ -93,8 +92,8 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 					$ctrl->insert_new_game($msg[1],$msg[2],$msg[1]);
 				}
 				//echo print_r($ctrl->out,true);
+				$this->send($data["channel"],null,"Recorded match.");
 				break;
-*/
 				case "games":
 					$this->send($data["channel"],null,$ctrl->pretty_games($username,(isset($msg[1])?$msg[1]:null)));
 					break;

@@ -132,9 +132,9 @@ class DB
         $p1 = trim(pg_escape_string($p1));
         if($p2){
             $p2 = trim(pg_escape_string($p2));
-            return $this->sql_result_array("SELECT * from games WHERE (player1=='$p1' AND player2=='$p2') OR (player1=='$p2' AND player2=='$p1')");
+            return $this->sql_result_array("SELECT * from games WHERE (player1='$p1' AND player2='$p2') OR (player1='$p2' AND player2='$p1')");
         } else {
-            return $this->sql_result_array("SELECT * FROM games WHERE player1=='$p1' OR player2=='$p2'");            
+            return $this->sql_result_array("SELECT * FROM games WHERE player1='$p1' OR player2='$p2'");            
         }
     }
 
