@@ -81,7 +81,6 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 					$this->send($data["channel"],null,"Usage: game <winner> <loser> (draw)");
 					break;
 				}
-				$ctrl = new GenericController();
 				if($msg[2] != $username && !$ctrl->db->is_admin($username)) {
 					$this->send($data["channel"],null,"Only the loser can record a game, $username.");
 					break;
