@@ -331,20 +331,30 @@ class GenericController
 	public function pretty_score($n) {
 		$arr = $this->db->get_stats($n);
 		$out = "Scoreboard".($n?" ($n)":"")."\n----------------------------------\n";
-		$out.= "Player      Elo  Games Wins Losses\n";
+		$out.= "Player      Elo\n";
 		foreach($arr as $player){
 			$out.=str_pad("_".$player["name"], 10).
 			str_pad((string)$player["elo"],5," ",STR_PAD_LEFT).
-			str_pad((string)$player["games"],6," ",STR_PAD_LEFT).
-			str_pad((string)$player["wins"],6," ",STR_PAD_LEFT).
-			str_pad((string)$player["losses"],6," ",STR_PAD_LEFT).
+//			str_pad((string)$player["games"],6," ",STR_PAD_LEFT).
+//			str_pad((string)$player["wins"],6," ",STR_PAD_LEFT).
+//			str_pad((string)$player["losses"],6," ",STR_PAD_LEFT).
 			"\n";
 		}
 		return $out;
 	}
 	function pretty_games($p1,$p2=null)
 	{
-		$games = $this->db->query_games($p1,$p2);
+		$games_dump = $this->db->query_games($p1,$p2);
+		$games = array();
+		if($p2){ // Make pretty stats against just one player.
+			foreach($games_dump as $game) {
+				$games[] = array();
+			}
+		} else { // Make pretty stats against all players.
+			foreach($games_dump as $games){
+				$games[] = array();
+			}
+		}
 		return print_r($games,true);
 	}
 

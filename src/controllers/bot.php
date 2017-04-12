@@ -11,7 +11,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 			"register","sign",
 			"draw","loss","lose","match","game",
 			"stats","list","statistics","matches","top","undo",
-			"admin","aliases","tournament","cup","tour","sudo","unsign","tournaments","whoami","games");
+			"admin","aliases","tournament","cup","tour","sudo","unsign","tournaments","games","whoami");
 
 	protected function configure() {
         // We don't have to configure a command name in this case
