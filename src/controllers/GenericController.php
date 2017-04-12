@@ -348,11 +348,11 @@ class GenericController
 		$games = array();
 		if($p2){ // Make pretty stats against just one player.
 			foreach($games_dump as $game) {
-				$games[] = array();
+				$games[] = $game;
 			}
 		} else { // Make pretty stats against all players.
-			foreach($games_dump as $games){
-				$games[] = array();
+			foreach($games_dump as $game){
+				$games[] = $game;
 			}
 		}
 		return print_r($games,true);
