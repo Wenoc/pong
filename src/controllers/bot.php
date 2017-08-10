@@ -32,86 +32,94 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 
 			switch($msg[0])
 			{
-				case "help":
-				$this->send($data["channel"],null,$this->help());
-				break;
+				case "help": {
+					$this->send($data["channel"],null,$this->help());
+					break;
+				}
 				case "aliases":
-				$this->send($data["channel"],null,"Full list of aliases: ".implode(", ", $this->commands));
-				break;
+					$this->send($data["channel"],null,"Full list of aliases: ".implode(", ", $this->commands));
+					break;
 				case "challenge":
-				$this->send($data["channel"],null,"Not implemented yet");				
-				break;
+					$this->send($data["channel"],null,"Not implemented yet");				
+					break;
 				case "accept":
-				$this->send($data["channel"],null,"Not implemented yet");				
-				break;
+					$this->send($data["channel"],null,"Not implemented yet");				
+					break;
 				case "decline":
 				case "refuse":
-				$this->send($data["channel"],null,"Not implemented yet");				
-				break;
+					$this->send($data["channel"],null,"Not implemented yet");				
+					break;
 				case "cancel":
-				$this->send($data["channel"],null,"Not implemented yet");				
-				break;
+					$this->send($data["channel"],null,"Not implemented yet");				
+					break;
 				case "register":
 				case "sign":
-				$ctrl->insert_new_player($username);
-				$this->send($data["channel"],null,$ctrl->out["msg"]);
-				break;
-				case "draw":
-				if(!isset($msg[1])){
-					$this->send($data["channel"],null,"Usage: draw <player>");
+					$ctrl->insert_new_player($username);
+					$this->send($data["channel"],null,$ctrl->out["msg"]);
 					break;
-				}
-				$ctrl->insert_new_game($msg[1],$username,"draw");
-				$this->send($data["channel"],null,$ctrl->out["msg"]." ".$ctrl->pretty_elo());
-				break;				
+				case "draw":
+					if(!isset($msg[1])){
+						$this->send($data["channel"],null,"Usage: draw <player>");
+						break;
+					}
+					$ctrl->insert_new_game($msg[1],$username,"draw");
+					$this->send($data["channel"],null,$ctrl->out["msg"]." ".$ctrl->pretty_elo());
+					break;				
 				case "loss":
 				case "lose":
-				case "lost":
-				if(!isset($msg[1])){
-					$this->send($data["channel"],null,"Usage: loss <winner>");
+				case "lost": {
+					if(strtolower($msg[1]) == strtolower($username)){
+						$this->send($data["channel"],null,"You cannot lose against yourself.");
+						break;
+					}
+					if(!isset($msg[1])){
+						$this->send($data["channel"],null,"Usage: loss <winner>");
+						break;
+					}
+					$ctrl->insert_new_game($msg[1],$username,$msg[1]);
+					$this->send($data["channel"],null,$ctrl->out["msg"]." ".$ctrl->pretty_elo());				
 					break;
 				}
-				$ctrl->insert_new_game($msg[1],$username,$msg[1]);
-				$this->send($data["channel"],null,$ctrl->out["msg"]." ".$ctrl->pretty_elo());				
-				break;
-
 				case "match":
-				case "game":
-				if(!isset($msg[1]) || !isset($msg[2]) || (isset($msg[3]) && $msg[3]!="draw")){
-					$this->send($data["channel"],null,"Usage: game <winner> <loser> (draw)");
+				case "game": {
+					if(!isset($msg[1]) || !isset($msg[2]) || (isset($msg[3]) && $msg[3]!="draw")){
+						$this->send($data["channel"],null,"Usage: game <winner> <loser> (draw)");
+						break;
+					}
+					if($msg[2] != $username && !$ctrl->db->is_admin($username)) {
+						$this->send($data["channel"],null,"Only the loser can record a game, $username.");
+						break;
+					}
+					if(isset($msg[3])){
+						$ctrl->insert_new_game($msg[1],$msg[2],"draw");
+					} else {
+						$ctrl->insert_new_game($msg[1],$msg[2],$msg[1]);
+					}
+					//echo print_r($ctrl->out,true);
+					$this->send($data["channel"],null,"Recorded match.");
 					break;
 				}
-				if($msg[2] != $username && !$ctrl->db->is_admin($username)) {
-					$this->send($data["channel"],null,"Only the loser can record a game, $username.");
-					break;
-				}
-				if(isset($msg[3])){
-					$ctrl->insert_new_game($msg[1],$msg[2],"draw");
-				} else {
-					$ctrl->insert_new_game($msg[1],$msg[2],$msg[1]);
-				}
-				//echo print_r($ctrl->out,true);
-				$this->send($data["channel"],null,"Recorded match.");
-				break;
-				case "games":
+				case "games": {
 					$this->send($data["channel"],null,$ctrl->pretty_games($username,(isset($msg[1])?$msg[1]:null)));
 					break;
-				case "unsign":
+				}
+				case "unsign": {
 					$this->send($data["channel"],null,"You can check in any time you like but you can never leave.");
 					break;
+				}
 				case "stats":
 				case "list":
 				case "statistics":
 				case "matches":
-				case "top":
-				$n = 0;
-				if(isset($msg[1]))
-					$n = (int)$msg[1];
-				//echo print_r($ctrl->pretty_score(0),true);
-				$out= "```".$ctrl->pretty_score($n)."```";
-				$this->send($data["channel"],null,$out);
-				break;
-
+				case "top": {
+					$n = 0;
+					if(isset($msg[1]))
+						$n = (int)$msg[1];
+					//echo print_r($ctrl->pretty_score(0),true);
+					$out= "```".$ctrl->pretty_score($n)."```";
+					$this->send($data["channel"],null,$out);
+					break;
+				}
 				case "sudo":
 				case "admin":
 				if($ctrl->db->is_admin(trim(strtolower($username)))){
@@ -137,7 +145,8 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				}
 				break;
 				case "undo":
-					$this->send($data["channel"],null,"Not implemented yet");	
+					$this->send($data["channel"],null,"Not implemented yet");
+					$ctrl->undo_player_last_move()
 					break;
 				case "tournaments":
 					$ctrl->tournament_log_pretty();
