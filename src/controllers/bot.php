@@ -145,9 +145,11 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				}
 				break;
 				case "undo":
-					$this->send($data["channel"],null,"Not implemented yet");
-					$ctrl->undo_player_last_move()
+					//$this->send($data["channel"],null,"Not implemented yet");
+					$ctrl->undo_player_last_move($username,($ctrl->db->is_admin(trim(strtolower($username))) ? 1:0));
+					$this->send($data["channel"],null,$ctrl->out["msg"]);					
 					break;
+
 				case "tournaments":
 					$ctrl->tournament_log_pretty();
 					$this->send($data["channel"],null,$ctrl->out["msg"]);

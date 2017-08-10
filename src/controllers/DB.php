@@ -138,6 +138,30 @@ class DB
         }
     }
 
+    function get_last_game()
+    {
+        $id = $this->sql_get_single("SELECT max(id) FROM games");
+        return $this->sql_result_array("SELECT * FROM games WHERE id=$id");
+    }
+
+    function undo_player_last_move($last_game)
+    {
+
+        if($last_game["player1"] == $last_game["winner"])
+            $loser = $last_game["player2"];
+        else 
+            $loser = $last_game["player1"];
+        $this->sql("UPDATE users SET elo = ".$last_game["player1_old_elo"]." WHERE name='".$last_game["player1"]."'");
+        $this->sql("UPDATE users SET elo = ".$last_game["player2_old_elo"]." WHERE name='".$last_game["player2"]."'");
+        $this->sql("UPDATE users SET games=games-1 WHERE name='".$last_game["player1"]."'");
+        $this->sql("UPDATE users SET games=games-1 WHERE name='".$last_game["player2"]."'");
+        $this->sql("UPDATE users SET wins=wins-1 WHERE name='".$last_game["winner"]."'");
+        $this->sql("UPDATE users SET wins=wins-1 WHERE name='".$loser."'");
+        $this->sql("DELETE FROM games WHERE id=".$last_game["id"]);
+        return "Undid game with winner: ".$last_game["winner"]." loser: ".$loser;
+    }
+
+
     /**************
      * Tournaments
      **************/

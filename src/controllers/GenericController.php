@@ -91,7 +91,16 @@ class GenericController
 		"elo","OK");
 		$this->tournament_check_and_register_win($p1,$p2,$winner);
 	}
-
+	
+	function undo_player_last_move($player,$admin=0)
+	{	
+		$last_game = $this->db->get_last_game()[0];
+		if($last_game["player1"] == $player || $last_game["player2"] == $player || $admin) {
+			$this->add_out($this->db->undo_player_last_move($last_game),"msg");
+		} else {
+			$this->add_out("The last game was not recorded by you, so you cannot undo it.","msg");
+		}
+	}
 
 
 
