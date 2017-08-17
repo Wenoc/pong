@@ -337,8 +337,9 @@ class GenericController
 		}
 		return $str;
 	}
-	public function pretty_score($n) {
-		$arr = $this->db->get_stats($n);
+
+	public function pretty_score($n,$all=0) {
+		$arr = $this->db->get_stats($n,$all);
 		$out = "Scoreboard".($n?" ($n)":"")."\n----------------------------------\n";
 		$out.= "Player      Elo\n";
 		foreach($arr as $player){

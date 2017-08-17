@@ -262,6 +262,24 @@ ALTER TABLE ONLY games
 ALTER TABLE ONLY games
     ADD CONSTRAINT player2_exists FOREIGN KEY (player2) REFERENCES users(name);
 
+-- This is an easy way to keep track of active an inactive players.
+CREATE FUNCTION update_last_update() RETURNS trigger AS $$
+BEGIN
+  NEW.last_update := NOW();
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER
+  update_last_update
+BEFORE UPDATE ON
+  users
+FOR EACH ROW EXECUTE PROCEDURE
+  update_last_update();
+
+-- If you need to update the last_updated timestamps retroactively, use this:
+--update users set last_update=(select max(time) from games where player1=users.name OR player2=users.name);
 
 --
 -- PostgreSQL database dump complete

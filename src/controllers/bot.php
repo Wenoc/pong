@@ -113,10 +113,15 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 				case "matches":
 				case "top": {
 					$n = 0;
-					if(isset($msg[1]))
-						$n = (int)$msg[1];
+					$all=0;
+					if(isset($msg[1])) {
+						if($msg[1]=='all')
+							$all=1;
+						else
+							$n = (int)$msg[1];
+					}
 					//echo print_r($ctrl->pretty_score(0),true);
-					$out= "```".$ctrl->pretty_score($n)."```";
+					$out= "```".$ctrl->pretty_score($n,$all)."```";
 					$this->send($data["channel"],null,$out);
 					break;
 				}
@@ -240,7 +245,7 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 		" loss <player>                   - records a loss against <player>\n".
 		" match <winner> <loser> ('draw') - record a game\n".
 		" register                        - register as a player\n".
-		" stats (N)                       - prints vanity report\n".
+		" stats (N) ('all')               - prints vanity report\n".
 		" undo                            - undoes the latest recorded loss (winner or loser can do this)\n".
 		"\n".
 		" tournament <cmd>                - Tournament commands.\n".

@@ -65,11 +65,14 @@ class DB
         $query = "SELECT elo from users where name='".$this->fix($player)."'";
         return $this->sql_get_single($query);
     }
-    public function get_stats($lim = 0){
+    public function get_stats($lim = 0,$all=0){
+        $whereclause='';
+        if(!$all)
+            $whereclause = "WHERE last_update>NOW()-interval '6 weeks' ";        
         if($lim)
-            $sql = "SELECT name,elo,games,wins,losses from users order by elo desc limit ".(int)$lim;
+            $sql = "SELECT name,elo,games,wins,losses from users ".$whereclause." order by elo desc limit ".(int)$lim;
         else
-            $sql = "SELECT name,elo,games,wins,losses from users order by elo desc";
+            $sql = "SELECT name,elo,games,wins,losses from users ".$whereclause." order by elo desc";
         return $this->sql_result_array($sql);
     }
 
