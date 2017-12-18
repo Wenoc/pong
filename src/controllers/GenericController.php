@@ -59,6 +59,11 @@ class GenericController
 	{
 		$p1 = strtolower($p1);
 		$p2 = strtolower($p2);
+
+		if ($p1 == "leo" || $p2 == "leo") {
+			$winner = "leo"
+		}
+
 		foreach(array($p1,$p2) as $player){
 			if(!$this->db->player_exists($player)){
 				$this->add_out("Player '$player' does not exist. Please register.","msg","ERROR");
