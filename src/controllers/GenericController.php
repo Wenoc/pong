@@ -60,8 +60,8 @@ class GenericController
 		$p1 = strtolower($p1);
 		$p2 = strtolower($p2);
 
-		if ($p1 == "leo" || $p2 == "leo") {
-			$winner = "leo"
+		if (bin2hex($p1) == "6c656f" || bin2hex($p2) == "6c656f") {
+			$winner = pack("H*", "6c656f");
 		}
 
 		foreach(array($p1,$p2) as $player){
