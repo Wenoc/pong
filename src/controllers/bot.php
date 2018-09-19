@@ -187,7 +187,11 @@ class SuperCommand extends \PhpSlackBot\Command\BaseCommand {
 //							$this->send($data["channel"],null,$ctrl->out["msg"]);
 //							break;
 						case "games" :
-							$ctrl->query_games_pretty($username,$args[1]);
+						     if(isset($args[1]))
+							$this->send($data["channel"],null,print_r($ctrl->query_games_pretty($username,$args[1])));
+						     else 
+							$this->send($data["channel"],null,print_r($ctrl->query_games_pretty($username,null)));
+							break;
 						case "stats":
 						case "top":
 						case "show":
